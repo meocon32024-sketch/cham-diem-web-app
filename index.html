@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bình Chọn Lớp Học | Vibe UI</title>
+    <title>Gameshow Bình Chọn | Vibe UI</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -18,7 +18,7 @@
                     fontFamily: { sans: ['"Be Vietnam Pro"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] },
                     colors: {
                         slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a' },
-                        brand: { cyan: '#0ea5e9', violet: '#8b5cf6', emerald: '#10b981', amber: '#f59e0b', pink: '#ec4899' }
+                        brand: { cyan: '#0ea5e9', violet: '#8b5cf6', emerald: '#10b981', amber: '#f59e0b', pink: '#ec4899', red: '#ef4444' }
                     },
                     animation: { 'float': 'float 6s ease-in-out infinite' },
                     keyframes: { float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } } }
@@ -27,49 +27,75 @@
         }
     </script>
     <style>
-        body { background-color: #f8fafc; color: #1e293b; overflow-x: hidden; scroll-behavior: smooth; }
-        /* Nền Pastel học sinh tươi sáng */
-        .mesh-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background: radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.12), transparent 35%),
-                        radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.12), transparent 35%),
-                        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.1), transparent 40%),
-                        radial-gradient(circle at 20% 70%, rgba(236, 72, 153, 0.1), transparent 30%),
-                        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.12), transparent 40%);
-            filter: blur(40px); pointer-events: none;
-            background-color: #ffffff;
+        body { color: #1e293b; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* 1. NỀN CHUYỂN ĐỘNG NHIỀU MÀU SẮC TƯƠI VUI */
+        .color-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background: linear-gradient(120deg, #ff9a9e, #fecfef, #f6d365, #fda085, #a1c4fd, #c2e9fb);
+            background-size: 300% 300%;
+            animation: gradientMove 15s ease infinite;
         }
-        /* Thẻ Glass Sáng */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 2. BONG BÓNG BAY TẠO KHÔNG KHÍ GAMESHOW */
+        .bubbles { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+        .bubble {
+            position: absolute; bottom: -100px; left: var(--l); width: var(--s); height: var(--s);
+            background: var(--c); border-radius: 50%; opacity: 0.5;
+            animation: floatUp 10s ease-in-out infinite; animation-delay: var(--d);
+            box-shadow: 0 0 20px var(--c);
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-50vh) scale(1.2) rotate(180deg); opacity: 0.4; }
+            100% { transform: translateY(-120vh) scale(1) rotate(360deg); opacity: 0; }
+        }
+
+        /* Thẻ Glass Sáng & Đậm hơn để nổi bật trên nền màu */
         .glass-card {
-            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 1); border-radius: 1.2rem; 
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 2px solid rgba(255, 255, 255, 1); border-radius: 1.5rem; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
         .input-ghost { background: transparent; border: none; outline: none; width: 100%; color: inherit; transition: border-color 0.2s; }
-        .input-ghost:focus { border-bottom: 1px dashed rgba(15, 23, 42, 0.3); }
+        .input-ghost:focus { border-bottom: 2px dashed rgba(15, 23, 42, 0.4); }
         .input-ghost::placeholder { color: #94a3b8; }
         
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.2); }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid white; }
         
-        /* Podium 3D FX */
-        .podium-bar { transition: height 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: inset 0 2px 15px rgba(255,255,255,0.8); }
+        .podium-bar { transition: height 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: inset 0 2px 20px rgba(255,255,255,0.9); }
         
         #app-presenter, #app-voter, #modal-overlay, #canvas-fireworks, #podium-view { display: none; }
         .active-view { display: block !important; }
         .active-flex { display: flex !important; }
     </style>
 </head>
-<body class="antialiased font-sans selection:bg-brand-violet selection:text-white">
-    <div class="mesh-bg"></div>
+<body class="antialiased font-sans selection:bg-brand-pink selection:text-white">
+    <!-- HỆ THỐNG NỀN TƯƠI VUI -->
+    <div class="color-bg"></div>
+    <div class="bubbles">
+        <div class="bubble" style="--c: #ff4757; --l: 10%; --s: 60px; --d: 0s;"></div>
+        <div class="bubble" style="--c: #1e90ff; --l: 30%; --s: 80px; --d: 2s;"></div>
+        <div class="bubble" style="--c: #2ed573; --l: 50%; --s: 50px; --d: 5s;"></div>
+        <div class="bubble" style="--c: #ffa502; --l: 75%; --s: 70px; --d: 1s;"></div>
+        <div class="bubble" style="--c: #ff69b4; --l: 90%; --s: 40px; --d: 4s;"></div>
+        <div class="bubble" style="--c: #7bed9f; --l: 15%; --s: 45px; --d: 7s;"></div>
+        <div class="bubble" style="--c: #70a1ff; --l: 85%; --s: 55px; --d: 6s;"></div>
+    </div>
+    
     <canvas id="canvas-fireworks" class="fixed top-0 left-0 w-full h-full z-50 pointer-events-none"></canvas>
 
-    <div class="fixed top-0 left-0 w-full z-50 opacity-0 hover:opacity-100 transition-opacity bg-white/80 backdrop-blur border-b border-slate-200 text-xs p-1 flex justify-center gap-4 shadow-sm">
-        <a href="#" onclick="window.location.hash=''; location.reload();" class="text-slate-500 hover:text-slate-900 font-medium">💻 Màn Hình Chiếu (GV)</a>
-        <a href="#vote" onclick="window.location.hash='#vote'; location.reload();" class="text-slate-500 hover:text-slate-900 font-medium">📱 Mobile Học Sinh</a>
+    <div class="fixed top-0 left-0 w-full z-50 opacity-0 hover:opacity-100 transition-opacity bg-white/90 backdrop-blur border-b border-slate-200 text-xs p-1 flex justify-center gap-4 shadow-md">
+        <a href="#" onclick="window.location.hash=''; location.reload();" class="text-slate-600 hover:text-brand-pink font-bold">💻 Màn Hình Chiếu (GV)</a>
+        <a href="#vote" onclick="window.location.hash='#vote'; location.reload();" class="text-slate-600 hover:text-brand-pink font-bold">📱 Mobile Học Sinh</a>
     </div>
 
     <!-- ========================================== -->
@@ -77,79 +103,75 @@
     <!-- ========================================== -->
     <div id="app-presenter" class="min-h-screen p-4 lg:p-8 pb-24 max-w-[1600px] mx-auto">
         <!-- Header & Config -->
-        <header class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-4 bg-white/40 p-6 rounded-2xl border border-white backdrop-blur-sm shadow-sm">
-            <div class="flex-1">
-                <input type="text" id="p-eventName" class="input-ghost text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 mb-1" value="Thuyết Trình Sản Phẩm Toán Học" onchange="updateState('eventName', this.value)">
-                <input type="text" id="p-category" class="input-ghost text-lg text-brand-cyan font-semibold" value="Lớp 11B2 - Trường THPT Nguyễn Thái Bình" onchange="updateState('category', this.value)">
+        <header class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-4 glass-card p-6">
+            <div class="flex-1 w-full">
+                <input type="text" id="p-eventName" class="input-ghost text-4xl lg:text-5xl font-black tracking-tight text-slate-900 mb-2 drop-shadow-sm" value="Gameshow Trí Tuệ Toán Học" onchange="updateState('eventName', this.value)">
+                <input type="text" id="p-category" class="input-ghost text-xl text-brand-pink font-extrabold" value="Lớp 11B2 - Trường THPT Nguyễn Thái Bình" onchange="updateState('category', this.value)">
             </div>
             <div class="flex gap-2 flex-wrap items-center">
-                <!-- Nút Quản lý File Cấu Hình -->
-                <button onclick="exportConfig()" class="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors flex items-center gap-1 shadow-sm" title="Tải file dữ liệu về máy">
-                    💾 Tải Cấu Hình
+                <button onclick="exportConfig()" class="bg-blue-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-600 transition-transform hover:scale-105 flex items-center gap-1 shadow-lg shadow-blue-500/30" title="Lưu lại cấu hình & Kết quả">
+                    💾 Lưu Máy
                 </button>
-                <button onclick="document.getElementById('import-file').click()" class="bg-slate-50 text-slate-600 border border-slate-200 px-3 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors flex items-center gap-1 shadow-sm" title="Mở file dữ liệu cũ">
+                <button onclick="document.getElementById('import-file').click()" class="bg-white text-blue-600 border-2 border-blue-200 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-50 transition-transform hover:scale-105 flex items-center gap-1 shadow-md">
                     📂 Mở File
                 </button>
-                <div class="w-px h-8 bg-slate-300 mx-1 hidden sm:block"></div>
+                <div class="w-1 h-8 bg-slate-200 mx-2 hidden sm:block rounded-full"></div>
                 
-                <button onclick="openSyncModal()" class="bg-white border border-slate-200 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-1 shadow-sm">
-                    🌐 Cài đặt Sync DB
+                <button onclick="openSyncModal()" class="bg-white border-2 border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-transform hover:scale-105 flex items-center gap-1 shadow-md">
+                    🌐 Cài DB Đồng Bộ
                 </button>
-                <button onclick="generateRandomVote()" class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors shadow-sm">
+                <button onclick="generateRandomVote()" class="bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-600 transition-transform hover:scale-105 shadow-lg shadow-emerald-500/30">
                     +1 Giả lập
                 </button>
-                <button onclick="endVotingStage()" class="bg-gradient-to-r from-brand-violet to-brand-pink text-white px-5 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-md shadow-brand-pink/30 ml-2" title="Phím tắt: F9 hoặc End">
-                    🎉 Kết thúc & Vinh danh (F9)
+                <button onclick="endVotingStage()" class="bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 text-white px-6 py-2.5 rounded-xl text-sm font-black hover:opacity-90 transition-transform hover:scale-105 shadow-xl shadow-orange-500/40 ml-2 border-2 border-white/50" title="Phím tắt: F9 hoặc End">
+                    🎉 CHỐT KẾT QUẢ (F9)
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left: Products Bento Grid (Col Span 8) -->
-            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-5" id="p-products-container">
-                <!-- Rendered via JS -->
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left: Products Bento Grid -->
+            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="p-products-container"></div>
 
-            <!-- Right: QR Station & Controls (Col Span 4) -->
-            <div class="lg:col-span-4 flex flex-col gap-5">
-                <!-- QR Station -->
+            <!-- Right: QR Station -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
                 <div class="glass-card p-6 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-cyan via-brand-violet to-brand-pink"></div>
-                    <h3 class="text-xl font-extrabold text-slate-800 mb-1">Quét Mã Để Bình Chọn</h3>
-                    <p class="text-xs font-mono font-medium bg-slate-100 text-slate-500 px-3 py-1 rounded-full mb-5" id="p-session-id">Session: #---</p>
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-cyan via-brand-amber to-brand-pink"></div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-1 drop-shadow-sm">Quét Mã Bình Chọn</h3>
+                    <p class="text-xs font-mono font-bold bg-white border border-slate-200 text-brand-pink px-4 py-1.5 rounded-full mb-5 shadow-sm" id="p-session-id">Session: #---</p>
                     
-                    <div class="bg-white p-3 rounded-2xl mb-5 shadow-sm border border-slate-100 relative group cursor-pointer hover:shadow-md transition-all" onclick="zoomQR()">
+                    <div class="bg-white p-3 rounded-[2rem] mb-6 shadow-xl border-4 border-slate-100 relative group cursor-pointer hover:scale-105 transition-transform" onclick="zoomQR()">
                         <div id="qr-code"></div>
-                        <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="bg-white text-slate-800 px-4 py-2 rounded-full text-sm font-bold shadow-lg">🔍 Phóng to</span>
+                        <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] rounded-[1.8rem] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="bg-white text-brand-violet px-5 py-2 rounded-full text-sm font-black shadow-2xl">🔍 MỞ LỚN</span>
                         </div>
                     </div>
 
-                    <div class="w-full flex gap-3 mb-5">
-                        <button onclick="copyVoteLink()" class="flex-1 bg-slate-50 border border-slate-200 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition shadow-sm">📋 Copy Link</button>
-                        <button onclick="createNewSession()" class="flex-1 bg-amber-50 border border-amber-200 py-2.5 rounded-lg text-sm font-bold text-amber-600 hover:bg-amber-100 transition shadow-sm">🔄 Đặt lại từ 0</button>
+                    <div class="w-full flex gap-3 mb-6">
+                        <button onclick="copyVoteLink()" class="flex-1 bg-white border-2 border-slate-200 py-3 rounded-xl text-sm font-extrabold text-slate-700 hover:bg-slate-50 transition shadow-md">📋 Copy Link</button>
+                        <button onclick="createNewSession()" class="flex-1 bg-white border-2 border-red-200 py-3 rounded-xl text-sm font-extrabold text-red-500 hover:bg-red-50 transition shadow-md">🔄 Tạo Mới Tự Đầu</button>
                     </div>
 
-                    <div class="w-full bg-blue-50/50 rounded-xl p-4 flex justify-between items-center border border-blue-100">
-                        <span class="text-sm font-semibold text-slate-600">Tổng số phiếu thu về:</span>
-                        <span class="text-3xl font-mono font-black text-brand-cyan" id="p-total-votes">0</span>
+                    <div class="w-full bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-5 flex justify-between items-center border-2 border-blue-200 shadow-inner">
+                        <span class="text-base font-extrabold text-slate-700 uppercase">Tổng số phiếu:</span>
+                        <span class="text-5xl font-mono font-black text-brand-cyan drop-shadow-md" id="p-total-votes">0</span>
                     </div>
                 </div>
 
                 <!-- Controls -->
                 <div class="glass-card p-6">
-                    <h3 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-wider">Công cụ điều khiển</h3>
-                    <label class="flex items-center justify-between cursor-pointer group bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition">
-                        <span class="text-sm font-semibold text-slate-700">Chế độ Hồi hộp (Giấu điểm)</span>
+                    <h3 class="text-sm font-black text-slate-400 mb-4 uppercase tracking-widest text-center">Bảng Điều Khiển</h3>
+                    <label class="flex items-center justify-between cursor-pointer group bg-white p-4 rounded-2xl border-2 border-slate-100 hover:border-brand-violet transition shadow-sm">
+                        <span class="text-base font-bold text-slate-700">Chế độ Ẩn Số Điểm (Hồi Hộp)</span>
                         <div class="relative">
                             <input type="checkbox" id="toggle-suspense" class="sr-only" onchange="toggleSuspense(this.checked)">
-                            <div class="block bg-slate-200 w-12 h-7 rounded-full border border-slate-300 shadow-inner"></div>
-                            <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition transform shadow-sm"></div>
+                            <div class="block bg-slate-200 w-14 h-8 rounded-full border-2 border-slate-300 shadow-inner transition-colors"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition transform shadow-md"></div>
                         </div>
                     </label>
                     <style>
                         input:checked ~ .dot { transform: translateX(100%); background-color: #fff; }
-                        input:checked ~ .block { background-color: #8b5cf6; border-color: #7c3aed; }
+                        input:checked ~ .block { background-color: #f59e0b; border-color: #d97706; }
                     </style>
                 </div>
             </div>
@@ -157,63 +179,54 @@
     </div>
 
     <!-- SÂN KHẤU VINH DANH 3D -->
-    <div id="podium-view" class="min-h-screen p-4 lg:p-8 flex flex-col items-center justify-center relative z-40 bg-white/50 backdrop-blur-sm">
-        <button onclick="closePodium()" class="absolute top-6 left-6 bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 z-50">← Quay lại Sân khấu</button>
-        <button onclick="playFanfare()" class="absolute top-6 right-6 bg-amber-50 border border-amber-200 text-amber-600 shadow-sm px-4 py-2 rounded-lg text-sm font-bold hover:bg-amber-100 z-50">🎺 Phát lại nhạc</button>
+    <div id="podium-view" class="min-h-screen p-4 lg:p-8 flex flex-col items-center justify-center relative z-40 bg-white/60 backdrop-blur-md">
+        <button onclick="closePodium()" class="absolute top-6 left-6 bg-white border-2 border-slate-200 shadow-lg px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-50 z-50">← Quay lại Sân khấu</button>
+        <button onclick="playFanfare()" class="absolute top-6 right-6 bg-amber-400 border-2 border-amber-500 text-white shadow-lg px-5 py-2.5 rounded-xl text-sm font-black hover:bg-amber-500 z-50 animate-bounce">🎺 Phát nhạc kèn</button>
         
-        <div class="text-center mb-16 z-10 p-6 bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-xl">
-            <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-2 text-slate-900" id="podium-event-name">Event Name</h1>
-            <p class="text-xl md:text-2xl font-bold text-brand-violet" id="podium-category">Category</p>
+        <div class="text-center mb-16 z-10 p-8 bg-white/90 backdrop-blur-xl rounded-[3rem] border-4 border-white shadow-2xl">
+            <h1 class="text-5xl md:text-7xl font-black tracking-tight mb-3 text-transparent bg-clip-text bg-gradient-to-r from-brand-violet via-brand-pink to-brand-amber" id="podium-event-name">Event Name</h1>
+            <p class="text-2xl md:text-3xl font-extrabold text-slate-700" id="podium-category">Category</p>
         </div>
-
-        <div class="flex items-end justify-center gap-2 md:gap-8 h-[450px] w-full max-w-5xl z-10" id="podium-container">
-            <!-- Rendered via JS -->
-        </div>
+        <div class="flex items-end justify-center gap-3 md:gap-10 h-[500px] w-full max-w-6xl z-10" id="podium-container"></div>
     </div>
 
     <!-- ========================================== -->
     <!-- CHẾ ĐỘ 2: BÌNH CHỌN MOBILE / VOTER VIEW -->
     <!-- ========================================== -->
-    <div id="app-voter" class="min-h-screen flex flex-col p-4 max-w-md mx-auto bg-slate-50">
-        <div class="text-center mb-6 mt-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-xl font-extrabold text-slate-900 leading-tight" id="v-eventName">Event Name</h2>
-            <p class="text-sm font-bold text-brand-cyan mt-1" id="v-category">Category</p>
-            <div class="inline-block mt-3 px-3 py-1 bg-slate-100 rounded-full text-xs font-mono font-medium text-slate-500" id="v-session-id">Session: #...</div>
+    <div id="app-voter" class="min-h-screen flex flex-col p-4 max-w-md mx-auto">
+        <div class="text-center mb-6 mt-6 bg-white/90 backdrop-blur-md p-5 rounded-[2rem] shadow-xl border-2 border-white">
+            <h2 class="text-2xl font-black text-slate-900 leading-tight" id="v-eventName">Event Name</h2>
+            <p class="text-base font-extrabold text-brand-pink mt-2" id="v-category">Category</p>
+            <div class="inline-block mt-3 px-4 py-1.5 bg-amber-100 rounded-full text-xs font-mono font-bold text-amber-700 border border-amber-200" id="v-session-id">Session: #...</div>
         </div>
-
-        <div id="v-alert-box" class="hidden mb-6 p-5 rounded-2xl border bg-white text-center shadow-lg"></div>
-
-        <div class="flex-1 flex flex-col gap-4 pb-10" id="v-products-container"></div>
-        
-        <div class="text-center text-xs font-medium text-slate-400 pb-4">
-            Bảo mật: 1 Lượt bình chọn / Thiết bị.
+        <div id="v-alert-box" class="hidden mb-6 p-6 rounded-[2rem] border-4 bg-white text-center shadow-2xl relative overflow-hidden"></div>
+        <div class="flex-1 flex flex-col gap-5 pb-10" id="v-products-container"></div>
+        <div class="text-center text-sm font-bold text-slate-600 pb-6 drop-shadow-sm bg-white/50 py-2 rounded-full mx-10">
+            🔒 Bảo mật: 1 Phiếu / Thiết bị.
         </div>
     </div>
 
     <!-- ========================================== -->
     <!-- MODALS & HIDDEN INPUTS -->
     <!-- ========================================== -->
-    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] items-center justify-center p-4">
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[100] items-center justify-center p-4">
         <!-- Settings Modal -->
-        <div id="modal-settings" class="bg-white rounded-2xl p-6 w-full max-w-md hidden flex-col shadow-2xl">
-            <h3 class="text-xl font-bold text-slate-900 mb-2 border-b border-slate-100 pb-3">🌐 Kết Nối Database (Tùy chọn)</h3>
-            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Để học sinh quét mã bằng mạng 3G/4G, hãy nhập Link Firebase Realtime Database. Nếu để trống, hệ thống sẽ dùng mạng Local (chỉ test được trên cùng trình duyệt máy tính).</p>
-            <input type="text" id="m-firebase-url" placeholder="https://your-project.firebaseio.com/votes.json" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 outline-none mb-5 font-mono text-slate-700">
+        <div id="modal-settings" class="bg-white rounded-[2rem] p-8 w-full max-w-md hidden flex-col shadow-2xl border-4 border-slate-100">
+            <h3 class="text-2xl font-black text-slate-900 mb-3 border-b-2 border-slate-100 pb-4">🌐 Máy Chủ Firebase (DB)</h3>
+            <p class="text-sm text-slate-600 mb-5 font-medium leading-relaxed">Để học sinh quét mã bằng mạng di động (3G/4G) từ xa, nhập Link Firebase. Nếu để trống, sẽ dùng mạng Local (kiểm thử trên máy tính).</p>
+            <input type="text" id="m-firebase-url" placeholder="https://your-project.firebaseio.com/votes.json" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-5 py-4 text-sm focus:border-brand-cyan focus:ring-4 focus:ring-brand-cyan/20 outline-none mb-6 font-mono text-slate-700 font-bold">
             <div class="flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Hủy</button>
-                <button onclick="saveSettings()" class="bg-brand-cyan text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-brand-cyan/30 hover:bg-sky-500 transition">Lưu DB</button>
+                <button onclick="closeModal()" class="px-6 py-3 text-sm font-extrabold text-slate-500 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                <button onclick="saveSettings()" class="bg-brand-cyan text-white px-8 py-3 rounded-xl text-sm font-black shadow-lg shadow-brand-cyan/40 hover:bg-sky-500 transition-transform hover:scale-105">Lưu DB</button>
             </div>
         </div>
-
         <!-- Zoom QR Modal -->
-        <div id="modal-qr" class="bg-white p-8 rounded-[2rem] hidden flex-col items-center relative shadow-2xl">
-            <button onclick="closeModal()" class="absolute -top-4 -right-4 bg-slate-900 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-slate-700 transition shadow-lg border-2 border-white font-bold">✕</button>
-            <div id="qr-code-large" class="p-2 bg-white rounded-2xl"></div>
-            <p class="text-slate-600 font-mono text-xs mt-6 bg-slate-100 px-4 py-2 rounded-lg break-all text-center max-w-[300px] border border-slate-200" id="qr-url-text">url</p>
+        <div id="modal-qr" class="bg-white p-10 rounded-[3rem] hidden flex-col items-center relative shadow-2xl border-8 border-slate-50">
+            <button onclick="closeModal()" class="absolute -top-5 -right-5 bg-red-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-red-600 transition shadow-xl border-4 border-white font-black text-xl hover:scale-110">✕</button>
+            <div id="qr-code-large" class="p-3 bg-white rounded-[2rem]"></div>
+            <p class="text-brand-pink font-mono font-bold text-xs mt-8 bg-pink-50 px-5 py-2.5 rounded-xl break-all text-center max-w-[320px] border-2 border-pink-200" id="qr-url-text">url</p>
         </div>
     </div>
-
-    <!-- Hidden Inputs for Files -->
     <input type="file" id="hidden-file-input" accept="image/*" class="hidden">
     <input type="file" id="import-file" accept=".json" class="hidden" onchange="importConfig(event)">
 
@@ -230,17 +243,13 @@
 
         let state = {
             sessionId: 'S-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
-            eventName: 'Thuyết Trình Sản Phẩm Toán Học',
-            category: 'Lớp 11B2 - Trường THPT Nguyễn Thái Bình',
-            firebaseUrl: '',
-            isSuspense: false,
-            isClosed: false,
+            eventName: 'Gameshow Trí Tuệ Toán Học', category: 'Lớp 11B2 - Trường THPT Nguyễn Thái Bình', firebaseUrl: '', isSuspense: false, isClosed: false,
             votes: { p1: 0, p2: 0, p3: 0, p4: 0 },
             products: {
-                p1: { name: 'Tổ 1', author: 'Nhóm 1', desc: 'Mô hình không gian', avatar: '', link: '' },
-                p2: { name: 'Tổ 2', author: 'Nhóm 2', desc: 'Ứng dụng thực tế', avatar: '', link: '' },
-                p3: { name: 'Tổ 3', author: 'Nhóm 3', desc: 'Thiết kế sáng tạo', avatar: '', link: '' },
-                p4: { name: 'Tổ 4', author: 'Nhóm 4', desc: 'Thuyết trình xuất sắc', avatar: '', link: '' }
+                p1: { name: 'Tổ 1', author: 'Đội Trí Tuệ', desc: 'Sản phẩm không gian', avatar: '', link: '' },
+                p2: { name: 'Tổ 2', author: 'Đội Tốc Độ', desc: 'Ứng dụng thực tế', avatar: '', link: '' },
+                p3: { name: 'Tổ 3', author: 'Đội Sáng Tạo', desc: 'Mô hình hàm số', avatar: '', link: '' },
+                p4: { name: 'Tổ 4', author: 'Đội Đột Phá', desc: 'Thuật toán logic', avatar: '', link: '' }
             }
         };
 
@@ -248,47 +257,82 @@
         let isMobileView = false;
         const bc = new BroadcastChannel('tech_vote_channel');
         
+        // --- AUDIO SYSTEM (TING TING) ---
+        let globalAudioCtx = null;
+        function initAudio() {
+            if (!globalAudioCtx) globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
+        }
+        // Unlock audio on any user interaction
+        document.body.addEventListener('click', initAudio, { once: true });
+        document.body.addEventListener('touchstart', initAudio, { once: true });
+
+        function playVoteSound() {
+            try {
+                if (!globalAudioCtx) initAudio();
+                const ctx = globalAudioCtx;
+                if (ctx.state === 'suspended') ctx.resume();
+                const n = ctx.currentTime;
+                
+                function playTone(freq, startTime, duration) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine'; // Âm thanh tròn và vui tai
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(startTime);
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05); 
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                    osc.stop(startTime + duration);
+                }
+                // Chuỗi nốt nhạc Gameshow (Ting Ting Ting - C5, E5, G5, C6)
+                playTone(523.25, n, 0.15);
+                playTone(659.25, n + 0.12, 0.15);
+                playTone(783.99, n + 0.24, 0.2);
+                playTone(1046.50, n + 0.36, 0.4);
+            } catch (e) { console.log("Audio play failed"); }
+        }
+
         bc.onmessage = async (e) => {
-            if (e.data.type === 'SYNC_STATE' && isMobileView) {
-                state = e.data.state; renderMobile();
-            }
+            if (e.data.type === 'SYNC_STATE' && isMobileView) { state = e.data.state; renderMobile(); }
             if (e.data.type === 'REQUEST_STATE' && !isMobileView) broadcastState();
             if (e.data.type === 'VOTE_CAST' && !isMobileView) handleIncomingVote(e.data.productId);
         };
 
         function broadcastState() { bc.postMessage({ type: 'SYNC_STATE', state: state }); }
-
         async function syncToFirebase() {
             if (!state.firebaseUrl) return;
-            try { await fetch(state.firebaseUrl, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }); } 
-            catch(e) { console.error(e); }
+            try { await fetch(state.firebaseUrl, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }); } catch(e){}
         }
 
         async function fetchFromFirebase() {
             if (!state.firebaseUrl) return false;
-            try {
-                const res = await fetch(state.firebaseUrl);
-                const data = await res.json();
-                if (data) { state = data; return true; }
-            } catch(e) { return false; } return false;
+            try { const res = await fetch(state.firebaseUrl); const data = await res.json(); if (data) { state = data; return true; } } catch(e){} return false;
         }
 
         setInterval(async () => {
             if (state.firebaseUrl) {
-                let oldVotes = JSON.stringify(state.votes);
+                let oldVotesJson = JSON.stringify(state.votes);
                 let oldClosed = state.isClosed;
                 if (await fetchFromFirebase()) {
-                    if (!isMobileView && (oldVotes !== JSON.stringify(state.votes) || oldClosed !== state.isClosed)) renderPresenter();
+                    let newVotesJson = JSON.stringify(state.votes);
+                    if (!isMobileView && (oldVotesJson !== newVotesJson || oldClosed !== state.isClosed)) {
+                        // Tính tổng phiếu cũ và mới để xem có phiếu nào được cộng không
+                        let sumOld = Object.values(JSON.parse(oldVotesJson)).reduce((a,b)=>a+b,0);
+                        let sumNew = Object.values(state.votes).reduce((a,b)=>a+b,0);
+                        if (sumNew > sumOld) playVoteSound(); // Phát âm thanh reo vui
+                        renderPresenter();
+                    }
                     else if (isMobileView) renderMobile();
                 }
             }
         }, 2000);
 
         async function init() {
-            const localState = localStorage.getItem('techVoteState_v2'); // updated key to clear old cache
+            const localState = localStorage.getItem('techVoteState_v3');
             if (localState) { state = { ...state, ...JSON.parse(localState) }; }
-            checkRoute();
-            window.addEventListener('hashchange', checkRoute);
+            checkRoute(); window.addEventListener('hashchange', checkRoute);
             document.addEventListener('keydown', (e) => { if ((e.key === 'F9' || e.key === 'End') && !isMobileView) endVotingStage(); });
             document.getElementById('hidden-file-input').addEventListener('change', handleImageUpload);
         }
@@ -299,11 +343,9 @@
                 isMobileView = true; document.title = "Bình Chọn | " + state.eventName;
                 document.getElementById('app-presenter').classList.remove('active-view');
                 document.getElementById('app-voter').classList.add('active-view');
-                
                 const urlParams = new URLSearchParams(hash.replace('#vote', ''));
                 if (urlParams.get('s')) state.sessionId = urlParams.get('s');
                 if (urlParams.get('db')) state.firebaseUrl = decodeURIComponent(urlParams.get('db'));
-
                 if (state.firebaseUrl) await fetchFromFirebase(); else bc.postMessage({ type: 'REQUEST_STATE' });
                 renderMobile();
             } else {
@@ -315,98 +357,63 @@
             }
         }
 
-        function saveLocalState() {
-            localStorage.setItem('techVoteState_v2', JSON.stringify(state));
-            broadcastState(); syncToFirebase();
-        }
-
-        // --- JSON EXPORT / IMPORT ---
+        function saveLocalState() { localStorage.setItem('techVoteState_v3', JSON.stringify(state)); broadcastState(); syncToFirebase(); }
         function exportConfig() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", "DuLieu_BinhChon_" + state.category.replace(/[^a-z0-9]/gi, '_') + ".json");
-            document.body.appendChild(dlAnchorElem);
-            dlAnchorElem.click();
-            dlAnchorElem.remove();
-            
-            // Hiệu ứng Toast đơn giản
-            const toast = document.createElement('div');
-            toast.className = "fixed bottom-5 right-5 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-xl font-bold z-[200] transition-opacity";
-            toast.innerText = "✅ Đã tải file cấu hình thành công!";
-            document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=>toast.remove(), 300); }, 3000);
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "Gameshow_DiemSo_" + state.category.replace(/[^a-z0-9]/gi, '_') + ".json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
         }
-
         function importConfig(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    const importedState = JSON.parse(e.target.result);
-                    state = { ...state, ...importedState };
-                    saveLocalState();
-                    renderPresenter();
-                    alert("✅ Đã khôi phục dữ liệu thành công!");
-                } catch(err) {
-                    alert("❌ Lỗi: File không đúng định dạng.");
-                }
-                event.target.value = ''; // Reset input
-            };
-            reader.readAsText(file);
+                try { state = { ...state, ...JSON.parse(e.target.result) }; saveLocalState(); renderPresenter(); alert("✅ Khôi phục thành công!"); } catch(err) { alert("❌ Lỗi định dạng."); }
+                event.target.value = '';
+            }; reader.readAsText(file);
         }
 
         function renderPresenter() {
-            document.getElementById('p-eventName').value = state.eventName;
-            document.getElementById('p-category').value = state.category;
-            document.getElementById('p-session-id').innerText = `Session: #${state.sessionId}`;
-            document.getElementById('toggle-suspense').checked = state.isSuspense;
-
+            document.getElementById('p-eventName').value = state.eventName; document.getElementById('p-category').value = state.category;
+            document.getElementById('p-session-id').innerText = `Session: #${state.sessionId}`; document.getElementById('toggle-suspense').checked = state.isSuspense;
             let total = Object.values(state.votes).reduce((a, b) => a + b, 0);
             animateValue(document.getElementById('p-total-votes'), parseInt(document.getElementById('p-total-votes').innerText)||0, total, 500);
 
             const container = document.getElementById('p-products-container'); container.innerHTML = '';
-
             PRODUCTS_CONFIG.forEach(cfg => {
-                const p = state.products[cfg.id];
-                const voteCount = state.votes[cfg.id];
+                const p = state.products[cfg.id]; const voteCount = state.votes[cfg.id];
                 const percent = total > 0 ? Math.round((voteCount / total) * 100) : 0;
-                const displayVotes = state.isSuspense ? '??' : voteCount;
-                const displayPercent = state.isSuspense ? '?' : percent;
-                const monogram = p.name ? p.name.charAt(0).toUpperCase() : '?';
+                const displayVotes = state.isSuspense ? '??' : voteCount; const displayPercent = state.isSuspense ? '?' : percent;
                 
                 const avatarHTML = p.avatar 
-                    ? `<img src="${p.avatar}" class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md">`
-                    : `<div class="w-16 h-16 rounded-2xl border-2 border-white shadow-md flex items-center justify-center text-2xl font-black bg-${cfg.defaultColor}-100 text-brand-${cfg.defaultColor}">${monogram}</div>`;
+                    ? `<img src="${p.avatar}" class="w-20 h-20 rounded-[1.2rem] object-cover border-4 border-white shadow-lg">`
+                    : `<div class="w-20 h-20 rounded-[1.2rem] border-4 border-white shadow-lg flex items-center justify-center text-3xl font-black bg-gradient-to-br from-${cfg.defaultColor}-100 to-${cfg.defaultColor}-300 text-brand-${cfg.defaultColor}">${p.name?p.name.charAt(0).toUpperCase():'?'}</div>`;
 
-                const cardHTML = `
-                    <div class="glass-card p-5 relative overflow-hidden group transition-all duration-300 hover:border-brand-${cfg.defaultColor} hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
-                        <div class="absolute -right-12 -top-12 w-32 h-32 bg-brand-${cfg.defaultColor} rounded-full opacity-0 group-hover:opacity-10 blur-2xl transition-opacity"></div>
-                        <div class="flex items-start gap-4 mb-4 relative z-10">
+                container.innerHTML += `
+                    <div class="glass-card p-6 relative overflow-hidden group transition-transform duration-300 hover:scale-[1.02] border-t-4 border-t-brand-${cfg.defaultColor}">
+                        <div class="absolute -right-16 -top-16 w-40 h-40 bg-brand-${cfg.defaultColor} rounded-full opacity-0 group-hover:opacity-15 blur-3xl transition-opacity"></div>
+                        <div class="flex items-start gap-5 mb-5 relative z-10">
                             <div class="relative cursor-pointer group/ava shrink-0" onclick="triggerAvatarUpload('${cfg.id}')">
                                 ${avatarHTML}
-                                <div class="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center opacity-0 group-hover/ava:opacity-100 transition-opacity text-xs font-bold text-white backdrop-blur-[2px]">Đổi ảnh</div>
+                                <div class="absolute inset-0 bg-slate-900/60 rounded-[1rem] flex items-center justify-center opacity-0 group-hover/ava:opacity-100 transition-opacity text-sm font-black text-white backdrop-blur-[2px]">Đổi ảnh</div>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <input type="text" class="input-ghost text-xl font-extrabold text-slate-900 mb-0.5 truncate" value="${p.name}" placeholder="Tên sản phẩm..." onchange="updateProduct('${cfg.id}', 'name', this.value)">
-                                <input type="text" class="input-ghost text-sm text-brand-${cfg.defaultColor} font-bold mb-1 truncate" value="${p.author}" placeholder="Nhóm / Tác giả..." onchange="updateProduct('${cfg.id}', 'author', this.value)">
+                                <input type="text" class="input-ghost text-2xl font-black text-slate-900 mb-1 truncate" value="${p.name}" placeholder="Tên sản phẩm..." onchange="updateProduct('${cfg.id}', 'name', this.value)">
+                                <input type="text" class="input-ghost text-base text-brand-${cfg.defaultColor} font-extrabold mb-1 truncate" value="${p.author}" placeholder="Nhóm / Tác giả..." onchange="updateProduct('${cfg.id}', 'author', this.value)">
                             </div>
                         </div>
-                        <input type="text" class="input-ghost text-sm text-slate-600 mb-4 bg-white/50 p-2 rounded-lg border border-transparent focus:border-slate-200" value="${p.desc}" placeholder="Mô tả ngắn gọn..." onchange="updateProduct('${cfg.id}', 'desc', this.value)">
+                        <input type="text" class="input-ghost text-sm text-slate-700 mb-5 bg-white/70 p-3 rounded-xl border-2 border-transparent focus:border-brand-${cfg.defaultColor} font-bold" value="${p.desc}" placeholder="Mô tả ngắn gọn..." onchange="updateProduct('${cfg.id}', 'desc', this.value)">
                         
-                        <div class="flex items-center justify-between border-t border-slate-200/60 pt-4 mt-auto">
-                            <div class="text-4xl font-mono font-black text-slate-800">${displayVotes} <span class="text-sm font-sans text-slate-500 font-semibold">phiếu</span></div>
+                        <div class="flex items-center justify-between border-t-2 border-slate-200/50 pt-5 mt-auto">
+                            <div class="text-5xl font-mono font-black text-slate-800 drop-shadow-md">${displayVotes} <span class="text-lg font-sans text-slate-500 font-bold">phiếu</span></div>
                             <div class="text-right w-1/2">
-                                <div class="text-sm font-black text-brand-${cfg.defaultColor} mb-1.5">${displayPercent}%</div>
-                                <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                                <div class="text-xl font-black text-brand-${cfg.defaultColor} mb-2">${displayPercent}%</div>
+                                <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                                     <div class="h-full bg-brand-${cfg.defaultColor} rounded-full transition-all duration-1000" style="width: ${percent}%"></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += cardHTML;
+                    </div>`;
             });
             generateQR();
         }
@@ -414,8 +421,8 @@
         function updateState(key, value) { state[key] = value; saveLocalState(); }
         function updateProduct(id, key, value) { state.products[id][key] = value; saveLocalState(); }
         function toggleSuspense(val) { state.isSuspense = val; saveLocalState(); renderPresenter(); }
-
         function triggerAvatarUpload(id) { currentTargetProductId = id; document.getElementById('hidden-file-input').click(); }
+        
         function handleImageUpload(e) {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -425,115 +432,87 @@
                     const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
                     const size = 300; canvas.width = size; canvas.height = size;
                     const scale = Math.max(size / img.width, size / img.height);
-                    const x = (size - img.width * scale) / 2; const y = (size - img.height * scale) / 2;
-                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-                    updateProduct(currentTargetProductId, 'avatar', canvas.toDataURL('image/jpeg', 0.8));
-                    renderPresenter();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file); e.target.value = ''; 
+                    ctx.drawImage(img, (size - img.width * scale) / 2, (size - img.height * scale) / 2, img.width * scale, img.height * scale);
+                    updateProduct(currentTargetProductId, 'avatar', canvas.toDataURL('image/jpeg', 0.8)); renderPresenter();
+                }; img.src = event.target.result;
+            }; reader.readAsDataURL(file); e.target.value = ''; 
         }
 
-        function getVoteUrl() {
-            let url = window.location.origin + window.location.pathname + `#vote&s=${state.sessionId}`;
-            if (state.firebaseUrl) url += `&db=${encodeURIComponent(state.firebaseUrl)}`;
-            return url;
-        }
-
+        function getVoteUrl() { let url = window.location.origin + window.location.pathname + `#vote&s=${state.sessionId}`; if (state.firebaseUrl) url += `&db=${encodeURIComponent(state.firebaseUrl)}`; return url; }
         function generateQR() {
-            const url = getVoteUrl(); document.getElementById('qr-url-text').innerText = url;
-            const qrContainer = document.getElementById('qr-code'); qrContainer.innerHTML = '';
-            new QRCode(qrContainer, { text: url, width: 150, height: 150, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+            document.getElementById('qr-url-text').innerText = getVoteUrl();
+            const q = document.getElementById('qr-code'); q.innerHTML = '';
+            new QRCode(q, { text: getVoteUrl(), width: 170, height: 170, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
         }
-
         function zoomQR() {
-            document.getElementById('modal-overlay').classList.add('active-flex');
-            document.getElementById('modal-qr').classList.add('active-flex');
-            document.getElementById('modal-settings').classList.remove('active-flex');
-            const qrLarge = document.getElementById('qr-code-large'); qrLarge.innerHTML = '';
-            new QRCode(qrLarge, { text: getVoteUrl(), width: 280, height: 280, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+            document.getElementById('modal-overlay').classList.add('active-flex'); document.getElementById('modal-qr').classList.add('active-flex'); document.getElementById('modal-settings').classList.remove('active-flex');
+            const qL = document.getElementById('qr-code-large'); qL.innerHTML = '';
+            new QRCode(qL, { text: getVoteUrl(), width: 300, height: 300, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
         }
-
         function createNewSession() {
-            if(confirm("Tạo phiên mới sẽ xóa toàn bộ số phiếu hiện tại về 0. Bạn có chắc chắn? (Nên tải file cấu hình trước khi reset)")) {
+            if(confirm("Tạo phiên mới sẽ xóa số phiếu hiện tại. Chắc chắn chứ?")) {
                 state.sessionId = 'S-' + Math.random().toString(36).substr(2, 5).toUpperCase();
-                state.votes = { p1: 0, p2: 0, p3: 0, p4: 0 }; state.isClosed = false; state.isSuspense = false;
-                saveLocalState(); renderPresenter();
+                state.votes = { p1: 0, p2: 0, p3: 0, p4: 0 }; state.isClosed = false; state.isSuspense = false; saveLocalState(); renderPresenter();
                 document.getElementById('podium-view').classList.remove('active-flex'); document.getElementById('app-presenter').style.display = 'block';
             }
         }
         function copyVoteLink() { navigator.clipboard.writeText(getVoteUrl()).then(() => alert("Đã copy link bình chọn!")); }
-        function generateRandomVote() {
-            if(state.isClosed) return alert("Cổng bình chọn đã đóng!");
-            const ids = ['p1', 'p2', 'p3', 'p4'];
-            handleIncomingVote(ids[Math.floor(Math.random() * ids.length)]);
-        }
+        function generateRandomVote() { if(state.isClosed) return alert("Đã đóng!"); const ids = ['p1', 'p2', 'p3', 'p4']; handleIncomingVote(ids[Math.floor(Math.random() * ids.length)]); }
+        
         function handleIncomingVote(productId) {
             if(state.isClosed) return;
-            state.votes[productId]++; saveLocalState(); renderPresenter();
+            state.votes[productId]++; 
+            playVoteSound(); // PING PING
+            saveLocalState(); renderPresenter();
         }
 
-        function openSyncModal() {
-            document.getElementById('modal-overlay').classList.add('active-flex'); document.getElementById('modal-settings').classList.add('active-flex');
-            document.getElementById('modal-qr').classList.remove('active-flex'); document.getElementById('m-firebase-url').value = state.firebaseUrl;
-        }
+        function openSyncModal() { document.getElementById('modal-overlay').classList.add('active-flex'); document.getElementById('modal-settings').classList.add('active-flex'); document.getElementById('modal-qr').classList.remove('active-flex'); document.getElementById('m-firebase-url').value = state.firebaseUrl; }
         function closeModal() { document.getElementById('modal-overlay').classList.remove('active-flex'); document.getElementById('modal-settings').classList.remove('active-flex'); document.getElementById('modal-qr').classList.remove('active-flex'); }
-        function saveSettings() {
-            state.firebaseUrl = document.getElementById('m-firebase-url').value.trim();
-            saveLocalState(); closeModal(); renderPresenter(); alert("Đã lưu Link Database.");
-        }
+        function saveSettings() { state.firebaseUrl = document.getElementById('m-firebase-url').value.trim(); saveLocalState(); closeModal(); renderPresenter(); alert("Đã lưu Link Database."); }
 
         // --- MOBILE ---
         function renderMobile() {
-            document.getElementById('v-eventName').innerText = state.eventName;
-            document.getElementById('v-category').innerText = state.category;
-            document.getElementById('v-session-id').innerText = `Session: #${state.sessionId}`;
-
+            document.getElementById('v-eventName').innerText = state.eventName; document.getElementById('v-category').innerText = state.category; document.getElementById('v-session-id').innerText = `Session: #${state.sessionId}`;
             const votedId = localStorage.getItem(`voted_${state.sessionId}`);
             const alertBox = document.getElementById('v-alert-box'); const container = document.getElementById('v-products-container'); container.innerHTML = '';
             let isLocked = false;
 
             if (state.isClosed) {
-                isLocked = true; alertBox.className = "mb-6 p-5 rounded-2xl border text-center shadow-lg bg-red-50 border-red-200 text-red-600 active-view";
-                alertBox.innerHTML = `<h3 class="font-black text-xl mb-1">CỔNG ĐÃ ĐÓNG</h3><p class="text-sm font-semibold">Kết quả đang hiển thị trên bảng chiếu.</p>`;
+                isLocked = true; alertBox.className = "mb-6 p-6 rounded-[2rem] border-4 text-center shadow-2xl bg-red-50 border-red-200 text-red-600 active-view";
+                alertBox.innerHTML = `<h3 class="font-black text-2xl mb-1">CỔNG ĐÃ ĐÓNG</h3><p class="text-base font-bold">Hãy nhìn lên bảng vinh danh nhé!</p>`;
             } else if (votedId) {
                 isLocked = true; const p = state.products[votedId]; const cfg = PRODUCTS_CONFIG.find(c => c.id === votedId);
-                alertBox.className = `mb-6 p-6 rounded-2xl border text-center shadow-xl bg-${cfg.defaultColor}-50 border-${cfg.defaultColor}-200 text-slate-800 active-view relative overflow-hidden`;
+                alertBox.className = `mb-6 p-8 rounded-[2rem] border-4 text-center shadow-2xl bg-${cfg.defaultColor}-50 border-${cfg.defaultColor}-300 text-slate-800 active-view relative overflow-hidden`;
                 alertBox.innerHTML = `
-                    <div class="text-brand-${cfg.defaultColor} text-xs font-mono mb-2 uppercase tracking-widest font-bold">Lượt bình chọn hợp lệ</div>
-                    <svg class="w-12 h-12 mx-auto mb-2 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p class="text-sm text-slate-500 font-medium">Bạn đã bầu cho</p>
-                    <div class="text-2xl font-black mt-1 text-brand-${cfg.defaultColor}">${p.name}</div>
+                    <div class="text-brand-${cfg.defaultColor} text-sm font-mono mb-3 uppercase tracking-widest font-black">Xác nhận thành công</div>
+                    <svg class="w-16 h-16 mx-auto mb-3 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-base text-slate-500 font-bold">Bạn đã bình chọn cho</p>
+                    <div class="text-3xl font-black mt-2 text-brand-${cfg.defaultColor} drop-shadow-sm">${p.name}</div>
                 `;
             } else { alertBox.classList.remove('active-view'); }
 
             PRODUCTS_CONFIG.forEach(cfg => {
                 const p = state.products[cfg.id];
-                const avatarHTML = p.avatar 
-                    ? `<img src="${p.avatar}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-sm">`
-                    : `<div class="w-14 h-14 rounded-xl flex items-center justify-center font-black text-xl bg-${cfg.defaultColor}-100 text-brand-${cfg.defaultColor} border border-${cfg.defaultColor}-200">${p.name.charAt(0).toUpperCase()}</div>`;
-
+                const avatarHTML = p.avatar ? `<img src="${p.avatar}" class="w-16 h-16 rounded-[1rem] object-cover border-2 border-slate-200 shadow-md">` : `<div class="w-16 h-16 rounded-[1rem] flex items-center justify-center font-black text-2xl bg-${cfg.defaultColor}-100 text-brand-${cfg.defaultColor} border-2 border-${cfg.defaultColor}-200">${p.name.charAt(0).toUpperCase()}</div>`;
                 let rightContent = '';
                 let opacity = isLocked && votedId !== cfg.id ? 'opacity-40 grayscale' : 'opacity-100';
-                let border = isLocked && votedId === cfg.id ? `border-brand-${cfg.defaultColor} ring-4 ring-${cfg.defaultColor}-100` : 'border-slate-200';
+                let border = isLocked && votedId === cfg.id ? `border-brand-${cfg.defaultColor} ring-4 ring-${cfg.defaultColor}-200` : 'border-slate-200';
 
                 if (state.isClosed) {
-                    let total = Object.values(state.votes).reduce((a, b) => a + b, 0);
-                    let percent = total > 0 ? Math.round((state.votes[cfg.id] / total) * 100) : 0;
-                    rightContent = `<div class="text-right"><div class="font-black font-mono text-xl text-brand-${cfg.defaultColor}">${percent}%</div><div class="text-xs font-bold text-slate-400">${state.votes[cfg.id]} phiếu</div></div>`;
+                    let total = Object.values(state.votes).reduce((a, b) => a + b, 0); let percent = total > 0 ? Math.round((state.votes[cfg.id] / total) * 100) : 0;
+                    rightContent = `<div class="text-right"><div class="font-black font-mono text-2xl text-brand-${cfg.defaultColor}">${percent}%</div><div class="text-xs font-bold text-slate-400">${state.votes[cfg.id]} phiếu</div></div>`;
                 } else if (!isLocked) {
-                    rightContent = `<button onclick="submitVote('${cfg.id}')" class="bg-brand-${cfg.defaultColor} text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-${cfg.defaultColor}-500/30 active:scale-95 transition">Chọn</button>`;
+                    rightContent = `<button onclick="submitVote('${cfg.id}')" class="bg-brand-${cfg.defaultColor} text-white px-6 py-3.5 rounded-xl font-black text-base shadow-xl shadow-${cfg.defaultColor}-500/40 active:scale-95 transition-transform">CHỌN</button>`;
                 } else if (votedId === cfg.id) {
-                    rightContent = `<svg class="w-8 h-8 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                    rightContent = `<svg class="w-10 h-10 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>`;
                 }
 
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl flex items-center gap-4 ${opacity} ${border} border shadow-sm transition-all">
+                    <div class="bg-white/95 backdrop-blur-md p-5 rounded-[1.5rem] flex items-center gap-4 ${opacity} border-2 ${border} shadow-lg transition-all">
                         ${avatarHTML}
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-extrabold text-slate-800 truncate text-lg">${p.name}</h4>
-                            <p class="text-xs font-bold text-brand-${cfg.defaultColor} truncate">${p.author}</p>
+                            <h4 class="font-black text-slate-800 truncate text-xl">${p.name}</h4>
+                            <p class="text-sm font-extrabold text-brand-${cfg.defaultColor} truncate">${p.author}</p>
                         </div>
                         ${rightContent}
                     </div>`;
@@ -541,8 +520,9 @@
         }
 
         function submitVote(id) {
-            if(confirm(`Chốt phiếu cho "${state.products[id].name}"? (Mỗi học sinh chỉ chọn 1 lần)`)) {
+            if(confirm(`Chốt phiếu cho "${state.products[id].name}"? (Bạn chỉ được bầu 1 lần duy nhất)`)) {
                 localStorage.setItem(`voted_${state.sessionId}`, id);
+                playVoteSound(); // Voter cũng nghe thấy tiếng Ting Ting khi tự bầu thành công
                 if (state.firebaseUrl) {
                     state.votes[id]++; renderMobile(); fetchFromFirebase().then(() => { state.votes[id]++; syncToFirebase(); });
                 } else { bc.postMessage({ type: 'VOTE_CAST', productId: id }); renderMobile(); }
@@ -551,7 +531,7 @@
 
         // --- PODIUM ---
         function endVotingStage() {
-            if(confirm("Chốt điểm số và mở Sân khấu Vinh danh?")) {
+            if(confirm("Chốt điểm số và vinh danh?")) {
                 state.isClosed = true; state.isSuspense = false; saveLocalState();
                 document.getElementById('app-presenter').style.display = 'none'; document.getElementById('podium-view').classList.add('active-flex');
                 renderPodium(); fireworks.start(); playFanfare();
@@ -560,41 +540,40 @@
         function closePodium() { document.getElementById('podium-view').classList.remove('active-flex'); document.getElementById('app-presenter').style.display = 'block'; fireworks.stop(); }
 
         function renderPodium() {
-            document.getElementById('podium-event-name').innerText = state.eventName;
-            document.getElementById('podium-category').innerText = state.category;
-
+            document.getElementById('podium-event-name').innerText = state.eventName; document.getElementById('podium-category').innerText = state.category;
             let sorted = PRODUCTS_CONFIG.map(cfg => ({ id: cfg.id, cfg: cfg, p: state.products[cfg.id], votes: state.votes[cfg.id] })).sort((a, b) => b.votes - a.votes);
             let total = sorted.reduce((sum, item) => sum + item.votes, 0);
-            const order = [ { rank: 2, item: sorted[1], h: '280px' }, { rank: 1, item: sorted[0], h: '380px' }, { rank: 3, item: sorted[2], h: '200px' }, { rank: 4, item: sorted[3], h: '120px' } ];
+            const order = [ { rank: 2, item: sorted[1], h: '300px' }, { rank: 1, item: sorted[0], h: '420px' }, { rank: 3, item: sorted[2], h: '220px' }, { rank: 4, item: sorted[3], h: '120px' } ];
             const container = document.getElementById('podium-container'); container.innerHTML = '';
 
             order.forEach(vo => {
                 if(!vo.item) return; const percent = total > 0 ? Math.round((vo.item.votes / total) * 100) : 0;
-                const crown = vo.rank === 1 ? `<div class="absolute -top-12 left-1/2 transform -translate-x-1/2 text-5xl animate-float filter drop-shadow-lg z-20">👑</div>` : '';
+                const crown = vo.rank === 1 ? `<div class="absolute -top-16 left-1/2 transform -translate-x-1/2 text-6xl animate-float filter drop-shadow-xl z-20">👑</div>` : '';
                 const ava = vo.item.p.avatar 
-                    ? `<img src="${vo.item.p.avatar}" class="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white shadow-xl z-10 relative bg-white">`
-                    : `<div class="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center font-black text-3xl bg-white border-4 border-brand-${vo.item.cfg.defaultColor} text-brand-${vo.item.cfg.defaultColor} shadow-xl z-10 relative">${vo.item.p.name.charAt(0).toUpperCase()}</div>`;
+                    ? `<img src="${vo.item.p.avatar}" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-[6px] border-white shadow-2xl z-10 relative bg-white">`
+                    : `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center font-black text-4xl bg-white border-[6px] border-brand-${vo.item.cfg.defaultColor} text-brand-${vo.item.cfg.defaultColor} shadow-2xl z-10 relative">${vo.item.p.name.charAt(0).toUpperCase()}</div>`;
 
                 container.innerHTML += `
-                    <div class="flex flex-col items-center justify-end w-1/4 max-w-[220px] relative group">
+                    <div class="flex flex-col items-center justify-end w-1/4 max-w-[250px] relative group">
                         ${crown} ${ava}
-                        <div class="text-center mb-6 z-10 absolute bottom-full pb-24 md:pb-32 w-full whitespace-nowrap drop-shadow-md">
-                            <h3 class="font-extrabold text-lg md:text-2xl text-slate-800 truncate px-2 bg-white/80 rounded-full inline-block backdrop-blur-sm border border-white shadow-sm">${vo.item.p.name}</h3>
-                            <div class="font-mono font-black text-xl md:text-3xl mt-2 text-brand-${vo.item.cfg.defaultColor}">${vo.item.votes} <span class="text-sm font-sans font-bold text-slate-500">phiếu</span></div>
+                        <div class="text-center mb-6 z-10 absolute bottom-full pb-32 md:pb-40 w-full whitespace-nowrap drop-shadow-lg">
+                            <h3 class="font-black text-xl md:text-3xl text-slate-800 truncate px-4 py-1 bg-white/90 rounded-full inline-block backdrop-blur-md border-2 border-white shadow-lg">${vo.item.p.name}</h3>
+                            <div class="font-mono font-black text-2xl md:text-4xl mt-3 text-brand-${vo.item.cfg.defaultColor} drop-shadow-md bg-white/60 px-4 py-1 rounded-2xl inline-block backdrop-blur-sm border border-white">${vo.item.votes} <span class="text-base font-sans font-bold text-slate-600">phiếu</span></div>
                         </div>
-                        <div class="podium-bar w-full rounded-t-3xl flex flex-col items-center justify-start pt-6 border-t-2 border-l-2 border-r-2 border-white bg-gradient-to-t from-${vo.item.cfg.defaultColor}-100 to-${vo.item.cfg.defaultColor}-300/50 backdrop-blur-md relative overflow-hidden shadow-2xl" style="height: 0px;" data-target-height="${vo.h}">
-                            <div class="text-4xl md:text-6xl font-black text-white drop-shadow-md z-10">#${vo.rank}</div>
-                            <div class="text-sm md:text-lg font-bold text-brand-${vo.item.cfg.defaultColor} z-10 mt-1 bg-white/80 px-3 py-1 rounded-full">${percent}%</div>
+                        <div class="podium-bar w-full rounded-t-[2.5rem] flex flex-col items-center justify-start pt-8 border-t-4 border-l-4 border-r-4 border-white bg-gradient-to-t from-${vo.item.cfg.defaultColor}-200 to-${vo.item.cfg.defaultColor}-400 backdrop-blur-xl relative overflow-hidden shadow-2xl" style="height: 0px;" data-target-height="${vo.h}">
+                            <div class="text-5xl md:text-7xl font-black text-white drop-shadow-xl z-10">#${vo.rank}</div>
+                            <div class="text-base md:text-xl font-black text-brand-${vo.item.cfg.defaultColor} z-10 mt-3 bg-white px-5 py-1.5 rounded-full shadow-md">${percent}%</div>
                         </div>
                     </div>`;
             });
             setTimeout(() => { document.querySelectorAll('.podium-bar').forEach(b => b.style.height = b.getAttribute('data-target-height')); }, 100);
         }
 
-        // --- AUDIO & FX ---
+        // --- AUDIO KÈN VINH DANH ---
         function playFanfare() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (!globalAudioCtx) initAudio();
+                const ctx = globalAudioCtx; if (ctx.state === 'suspended') ctx.resume();
                 function playTone(freq, type, startTime, dur, vol) {
                     const osc = ctx.createOscillator(); const gain = ctx.createGain();
                     osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(ctx.destination);
@@ -602,25 +581,24 @@
                     gain.gain.setValueAtTime(vol, startTime + dur - 0.2); gain.gain.linearRampToValueAtTime(0, startTime + dur); osc.stop(startTime + dur);
                 }
                 const n = ctx.currentTime;
-                playTone(261.63, 'triangle', n, 0.3, 0.2); playTone(329.63, 'triangle', n+0.3, 0.3, 0.2);
-                playTone(392.00, 'triangle', n+0.6, 0.3, 0.2); playTone(523.25, 'triangle', n+0.9, 1.5, 0.3);
+                playTone(261.63, 'square', n, 0.4, 0.1); playTone(329.63, 'square', n+0.4, 0.4, 0.1);
+                playTone(392.00, 'square', n+0.8, 0.4, 0.1); playTone(523.25, 'square', n+1.2, 1.5, 0.15);
             } catch(e){}
         }
 
         const fireworks = {
             c: document.getElementById('canvas-fireworks'), ctx: null, p: [], aId: null, active: false,
-            colors: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'],
+            colors: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#ef4444'],
             init() { this.ctx = this.c.getContext('2d'); this.resize(); window.addEventListener('resize', ()=>this.resize()); },
             resize() { this.c.width = window.innerWidth; this.c.height = window.innerHeight; },
             exp(x, y) {
-                for(let i=0; i<80; i++) {
-                    const a = Math.random()*Math.PI*2, s = Math.random()*8+2;
-                    this.p.push({ x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, r:Math.random()*4+1, c:this.colors[Math.floor(Math.random()*this.colors.length)], a:1, d:Math.random()*0.015+0.01, g:0.15 });
+                for(let i=0; i<100; i++) {
+                    const a = Math.random()*Math.PI*2, s = Math.random()*10+2;
+                    this.p.push({ x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, r:Math.random()*5+2, c:this.colors[Math.floor(Math.random()*this.colors.length)], a:1, d:Math.random()*0.015+0.01, g:0.15 });
                 }
             },
             update() {
-                if(!this.active) return;
-                this.ctx.clearRect(0,0,this.c.width,this.c.height);
+                if(!this.active) return; this.ctx.clearRect(0,0,this.c.width,this.c.height);
                 if(Math.random()<0.08) this.exp(Math.random()*this.c.width, Math.random()*(this.c.height/2));
                 for(let i=this.p.length-1; i>=0; i--) {
                     let p=this.p[i]; p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.a-=p.d;
