@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tech Vote Stage | Vibe UI</title>
+    <title>Bình Chọn Lớp Học | Vibe UI</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- QRCode.js -->
@@ -17,40 +17,47 @@
                 extend: {
                     fontFamily: { sans: ['"Be Vietnam Pro"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] },
                     colors: {
-                        obsidian: '#07090E',
-                        brand: { cyan: '#06B6D4', violet: '#8B5CF6', emerald: '#10B981', amber: '#F59E0B' }
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a' },
+                        brand: { cyan: '#0ea5e9', violet: '#8b5cf6', emerald: '#10b981', amber: '#f59e0b', pink: '#ec4899' }
                     },
-                    animation: { 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite', 'float': 'float 6s ease-in-out infinite' },
+                    animation: { 'float': 'float 6s ease-in-out infinite' },
                     keyframes: { float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } } }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #07090E; color: white; overflow-x: hidden; scroll-behavior: smooth; }
+        body { background-color: #f8fafc; color: #1e293b; overflow-x: hidden; scroll-behavior: smooth; }
+        /* Nền Pastel học sinh tươi sáng */
         .mesh-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background: radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.15), transparent 25%),
-                        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%),
-                        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.1), transparent 30%);
-            filter: blur(60px); pointer-events: none;
+            background: radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.12), transparent 35%),
+                        radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.12), transparent 35%),
+                        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.1), transparent 40%),
+                        radial-gradient(circle at 20% 70%, rgba(236, 72, 153, 0.1), transparent 30%),
+                        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.12), transparent 40%);
+            filter: blur(40px); pointer-events: none;
+            background-color: #ffffff;
         }
+        /* Thẻ Glass Sáng */
         .glass-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 1); border-radius: 1.2rem; 
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
         }
-        .input-ghost { background: transparent; border: none; outline: none; width: 100%; color: inherit; }
-        .input-ghost:focus { border-bottom: 1px dashed rgba(255,255,255,0.5); }
+        .input-ghost { background: transparent; border: none; outline: none; width: 100%; color: inherit; transition: border-color 0.2s; }
+        .input-ghost:focus { border-bottom: 1px dashed rgba(15, 23, 42, 0.3); }
+        .input-ghost::placeholder { color: #94a3b8; }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         /* Podium 3D FX */
-        .podium-bar { transition: height 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: inset 0 2px 10px rgba(255,255,255,0.3); }
+        .podium-bar { transition: height 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: inset 0 2px 15px rgba(255,255,255,0.8); }
         
-        /* Hide UI logic */
         #app-presenter, #app-voter, #modal-overlay, #canvas-fireworks, #podium-view { display: none; }
         .active-view { display: block !important; }
         .active-flex { display: flex !important; }
@@ -60,99 +67,106 @@
     <div class="mesh-bg"></div>
     <canvas id="canvas-fireworks" class="fixed top-0 left-0 w-full h-full z-50 pointer-events-none"></canvas>
 
-    <!-- Hàng chuyển đổi nhanh (Chỉ hiển thị khi rê chuột lên top hoặc trên mobile) -->
-    <div class="fixed top-0 left-0 w-full z-50 opacity-0 hover:opacity-100 transition-opacity bg-obsidian/80 backdrop-blur border-b border-white/10 text-xs p-1 flex justify-center gap-4">
-        <a href="#" onclick="window.location.hash=''; location.reload();" class="text-gray-400 hover:text-white">💻 Sân khấu (Presenter)</a>
-        <a href="#vote" onclick="window.location.hash='#vote'; location.reload();" class="text-gray-400 hover:text-white">📱 Mobile (Voter)</a>
+    <div class="fixed top-0 left-0 w-full z-50 opacity-0 hover:opacity-100 transition-opacity bg-white/80 backdrop-blur border-b border-slate-200 text-xs p-1 flex justify-center gap-4 shadow-sm">
+        <a href="#" onclick="window.location.hash=''; location.reload();" class="text-slate-500 hover:text-slate-900 font-medium">💻 Màn Hình Chiếu (GV)</a>
+        <a href="#vote" onclick="window.location.hash='#vote'; location.reload();" class="text-slate-500 hover:text-slate-900 font-medium">📱 Mobile Học Sinh</a>
     </div>
 
     <!-- ========================================== -->
     <!-- CHẾ ĐỘ 1: SÂN KHẤU / PRESENTER VIEW -->
     <!-- ========================================== -->
-    <div id="app-presenter" class="min-h-screen p-6 lg:p-10 pb-24">
+    <div id="app-presenter" class="min-h-screen p-4 lg:p-8 pb-24 max-w-[1600px] mx-auto">
         <!-- Header & Config -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <header class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-4 bg-white/40 p-6 rounded-2xl border border-white backdrop-blur-sm shadow-sm">
             <div class="flex-1">
-                <input type="text" id="p-eventName" class="input-ghost text-4xl lg:text-5xl font-bold tracking-tight text-white mb-2" value="Tech Demo Day 2026" onchange="updateState('eventName', this.value)">
-                <input type="text" id="p-category" class="input-ghost text-xl text-gray-400 font-medium" value="Giải Thưởng Công Nghệ Sáng Tạo Nhất" onchange="updateState('category', this.value)">
+                <input type="text" id="p-eventName" class="input-ghost text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 mb-1" value="Thuyết Trình Sản Phẩm Toán Học" onchange="updateState('eventName', this.value)">
+                <input type="text" id="p-category" class="input-ghost text-lg text-brand-cyan font-semibold" value="Lớp 11B2 - Trường THPT Nguyễn Thái Bình" onchange="updateState('category', this.value)">
             </div>
-            <div class="flex gap-3 flex-wrap">
-                <button onclick="openSyncModal()" class="glass-card px-4 py-2 text-sm font-medium hover:bg-white/10 transition-colors flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    Cài đặt Sync DB
+            <div class="flex gap-2 flex-wrap items-center">
+                <!-- Nút Quản lý File Cấu Hình -->
+                <button onclick="exportConfig()" class="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors flex items-center gap-1 shadow-sm" title="Tải file dữ liệu về máy">
+                    💾 Tải Cấu Hình
                 </button>
-                <button onclick="generateRandomVote()" class="glass-card px-4 py-2 text-sm font-medium hover:bg-white/10 transition-colors text-brand-emerald">
+                <button onclick="document.getElementById('import-file').click()" class="bg-slate-50 text-slate-600 border border-slate-200 px-3 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors flex items-center gap-1 shadow-sm" title="Mở file dữ liệu cũ">
+                    📂 Mở File
+                </button>
+                <div class="w-px h-8 bg-slate-300 mx-1 hidden sm:block"></div>
+                
+                <button onclick="openSyncModal()" class="bg-white border border-slate-200 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-1 shadow-sm">
+                    🌐 Cài đặt Sync DB
+                </button>
+                <button onclick="generateRandomVote()" class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors shadow-sm">
                     +1 Giả lập
                 </button>
-                <button onclick="endVotingStage()" class="bg-white text-obsidian px-5 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.3)]" title="Phím tắt: F9 hoặc End">
-                    Kết thúc & Vinh danh (F9)
+                <button onclick="endVotingStage()" class="bg-gradient-to-r from-brand-violet to-brand-pink text-white px-5 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shadow-md shadow-brand-pink/30 ml-2" title="Phím tắt: F9 hoặc End">
+                    🎉 Kết thúc & Vinh danh (F9)
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Left: Products Bento Grid (Col Span 8) -->
-            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="p-products-container">
+            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-5" id="p-products-container">
                 <!-- Rendered via JS -->
             </div>
 
             <!-- Right: QR Station & Controls (Col Span 4) -->
-            <div class="lg:col-span-4 flex flex-col gap-6">
+            <div class="lg:col-span-4 flex flex-col gap-5">
                 <!-- QR Station -->
                 <div class="glass-card p-6 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-cyan to-brand-violet"></div>
-                    <h3 class="text-lg font-bold mb-1">Cổng Bình Chọn Trực Tiếp</h3>
-                    <p class="text-sm text-gray-400 mb-6" id="p-session-id">Session: #---</p>
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-cyan via-brand-violet to-brand-pink"></div>
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-1">Quét Mã Để Bình Chọn</h3>
+                    <p class="text-xs font-mono font-medium bg-slate-100 text-slate-500 px-3 py-1 rounded-full mb-5" id="p-session-id">Session: #---</p>
                     
-                    <div class="bg-white p-4 rounded-xl mb-6 shadow-xl relative group cursor-pointer" onclick="zoomQR()">
+                    <div class="bg-white p-3 rounded-2xl mb-5 shadow-sm border border-slate-100 relative group cursor-pointer hover:shadow-md transition-all" onclick="zoomQR()">
                         <div id="qr-code"></div>
-                        <div class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-white text-sm font-bold">🔍 Phóng to</span>
+                        <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="bg-white text-slate-800 px-4 py-2 rounded-full text-sm font-bold shadow-lg">🔍 Phóng to</span>
                         </div>
                     </div>
 
-                    <div class="w-full flex gap-2 mb-4">
-                        <button onclick="copyVoteLink()" class="flex-1 glass-card py-2 text-xs font-medium hover:bg-white/10 transition">📋 Copy Link</button>
-                        <button onclick="createNewSession()" class="flex-1 glass-card py-2 text-xs font-medium hover:bg-white/10 transition text-brand-amber">🔄 Phiên mới</button>
+                    <div class="w-full flex gap-3 mb-5">
+                        <button onclick="copyVoteLink()" class="flex-1 bg-slate-50 border border-slate-200 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition shadow-sm">📋 Copy Link</button>
+                        <button onclick="createNewSession()" class="flex-1 bg-amber-50 border border-amber-200 py-2.5 rounded-lg text-sm font-bold text-amber-600 hover:bg-amber-100 transition shadow-sm">🔄 Đặt lại từ 0</button>
                     </div>
 
-                    <div class="w-full bg-white/5 rounded-lg p-4 flex justify-between items-center border border-white/5">
-                        <span class="text-sm font-medium">Tổng phiếu thu về:</span>
-                        <span class="text-2xl font-mono font-bold text-brand-cyan" id="p-total-votes">0</span>
+                    <div class="w-full bg-blue-50/50 rounded-xl p-4 flex justify-between items-center border border-blue-100">
+                        <span class="text-sm font-semibold text-slate-600">Tổng số phiếu thu về:</span>
+                        <span class="text-3xl font-mono font-black text-brand-cyan" id="p-total-votes">0</span>
                     </div>
                 </div>
 
                 <!-- Controls -->
                 <div class="glass-card p-6">
-                    <h3 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">Công cụ điều khiển</h3>
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm font-medium group-hover:text-white transition">Chế độ Hồi hộp (Ẩn số phiếu)</span>
+                    <h3 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-wider">Công cụ điều khiển</h3>
+                    <label class="flex items-center justify-between cursor-pointer group bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition">
+                        <span class="text-sm font-semibold text-slate-700">Chế độ Hồi hộp (Giấu điểm)</span>
                         <div class="relative">
                             <input type="checkbox" id="toggle-suspense" class="sr-only" onchange="toggleSuspense(this.checked)">
-                            <div class="block bg-white/10 w-10 h-6 rounded-full border border-white/20"></div>
-                            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform"></div>
+                            <div class="block bg-slate-200 w-12 h-7 rounded-full border border-slate-300 shadow-inner"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition transform shadow-sm"></div>
                         </div>
                     </label>
                     <style>
-                        input:checked ~ .dot { transform: translateX(100%); background-color: #10B981; }
-                        input:checked ~ .block { background-color: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.5); }
+                        input:checked ~ .dot { transform: translateX(100%); background-color: #fff; }
+                        input:checked ~ .block { background-color: #8b5cf6; border-color: #7c3aed; }
                     </style>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SÂN KHẤU VINH DANH 3D (Ẩn mặc định) -->
-    <div id="podium-view" class="min-h-screen p-6 flex flex-col items-center justify-center relative z-40">
-        <button onclick="closePodium()" class="absolute top-6 left-6 glass-card px-4 py-2 text-sm hover:bg-white/10 z-50">← Quay lại Bảng điều khiển</button>
-        <button onclick="playFanfare()" class="absolute top-6 right-6 glass-card px-4 py-2 text-sm hover:bg-white/10 z-50 text-brand-amber">🎺 Phát lại nhạc</button>
+    <!-- SÂN KHẤU VINH DANH 3D -->
+    <div id="podium-view" class="min-h-screen p-4 lg:p-8 flex flex-col items-center justify-center relative z-40 bg-white/50 backdrop-blur-sm">
+        <button onclick="closePodium()" class="absolute top-6 left-6 bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 z-50">← Quay lại Sân khấu</button>
+        <button onclick="playFanfare()" class="absolute top-6 right-6 bg-amber-50 border border-amber-200 text-amber-600 shadow-sm px-4 py-2 rounded-lg text-sm font-bold hover:bg-amber-100 z-50">🎺 Phát lại nhạc</button>
         
-        <div class="text-center mb-16 z-10">
-            <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400" id="podium-event-name">Event Name</h1>
-            <p class="text-xl md:text-2xl text-brand-cyan" id="podium-category">Category</p>
+        <div class="text-center mb-16 z-10 p-6 bg-white/70 backdrop-blur-md rounded-3xl border border-white shadow-xl">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-2 text-slate-900" id="podium-event-name">Event Name</h1>
+            <p class="text-xl md:text-2xl font-bold text-brand-violet" id="podium-category">Category</p>
         </div>
 
-        <div class="flex items-end justify-center gap-2 md:gap-6 h-[400px] w-full max-w-5xl z-10" id="podium-container">
+        <div class="flex items-end justify-center gap-2 md:gap-8 h-[450px] w-full max-w-5xl z-10" id="podium-container">
             <!-- Rendered via JS -->
         </div>
     </div>
@@ -160,118 +174,94 @@
     <!-- ========================================== -->
     <!-- CHẾ ĐỘ 2: BÌNH CHỌN MOBILE / VOTER VIEW -->
     <!-- ========================================== -->
-    <div id="app-voter" class="min-h-screen flex flex-col p-4 max-w-md mx-auto">
-        <div class="text-center mb-6 mt-4">
-            <h2 class="text-xl font-bold leading-tight" id="v-eventName">Event Name</h2>
-            <p class="text-sm text-brand-cyan mt-1" id="v-category">Category</p>
-            <div class="inline-block mt-3 px-3 py-1 bg-white/10 rounded-full text-xs font-mono text-gray-400" id="v-session-id">Session: #...</div>
+    <div id="app-voter" class="min-h-screen flex flex-col p-4 max-w-md mx-auto bg-slate-50">
+        <div class="text-center mb-6 mt-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <h2 class="text-xl font-extrabold text-slate-900 leading-tight" id="v-eventName">Event Name</h2>
+            <p class="text-sm font-bold text-brand-cyan mt-1" id="v-category">Category</p>
+            <div class="inline-block mt-3 px-3 py-1 bg-slate-100 rounded-full text-xs font-mono font-medium text-slate-500" id="v-session-id">Session: #...</div>
         </div>
 
-        <!-- Trạng thái Đã khóa/Đóng cửa -->
-        <div id="v-alert-box" class="hidden mb-6 p-4 rounded-xl border backdrop-blur-md text-center shadow-2xl">
-            <!-- Content dynamic -->
-        </div>
+        <div id="v-alert-box" class="hidden mb-6 p-5 rounded-2xl border bg-white text-center shadow-lg"></div>
 
-        <div class="flex-1 flex flex-col gap-4 pb-10" id="v-products-container">
-            <!-- Rendered via JS -->
-        </div>
+        <div class="flex-1 flex flex-col gap-4 pb-10" id="v-products-container"></div>
         
-        <div class="text-center text-xs text-gray-500 pb-4">
-            Hệ thống chống gian lận: 1 Phiết / Thiết bị / Trình duyệt.
+        <div class="text-center text-xs font-medium text-slate-400 pb-4">
+            Bảo mật: 1 Lượt bình chọn / Thiết bị.
         </div>
     </div>
 
-
     <!-- ========================================== -->
-    <!-- MODALS & OVERLAYS -->
+    <!-- MODALS & HIDDEN INPUTS -->
     <!-- ========================================== -->
-    <div id="modal-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] items-center justify-center p-4">
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] items-center justify-center p-4">
         <!-- Settings Modal -->
-        <div id="modal-settings" class="glass-card p-6 w-full max-w-md hidden flex-col">
-            <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Cài đặt Database (Tùy chọn)</h3>
-            <p class="text-xs text-gray-400 mb-4">Để khán giả quét QR bằng mạng 4G/khác mạng, nhập URL Firebase Realtime Database. Nếu để trống, sẽ dùng BroadcastChannel (chỉ hoạt động khi khán giả và máy tính cùng chung 1 trình duyệt / chung mạng local cho demo).</p>
-            <input type="text" id="m-firebase-url" placeholder="https://your-project.firebaseio.com/votes.json" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:border-brand-cyan outline-none mb-4 font-mono">
+        <div id="modal-settings" class="bg-white rounded-2xl p-6 w-full max-w-md hidden flex-col shadow-2xl">
+            <h3 class="text-xl font-bold text-slate-900 mb-2 border-b border-slate-100 pb-3">🌐 Kết Nối Database (Tùy chọn)</h3>
+            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Để học sinh quét mã bằng mạng 3G/4G, hãy nhập Link Firebase Realtime Database. Nếu để trống, hệ thống sẽ dùng mạng Local (chỉ test được trên cùng trình duyệt máy tính).</p>
+            <input type="text" id="m-firebase-url" placeholder="https://your-project.firebaseio.com/votes.json" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 outline-none mb-5 font-mono text-slate-700">
             <div class="flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-4 py-2 text-sm text-gray-400 hover:text-white">Hủy</button>
-                <button onclick="saveSettings()" class="bg-brand-cyan text-obsidian px-6 py-2 rounded-lg text-sm font-bold">Lưu & Áp dụng</button>
+                <button onclick="closeModal()" class="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                <button onclick="saveSettings()" class="bg-brand-cyan text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-brand-cyan/30 hover:bg-sky-500 transition">Lưu DB</button>
             </div>
         </div>
 
         <!-- Zoom QR Modal -->
-        <div id="modal-qr" class="bg-white p-8 rounded-3xl hidden flex-col items-center relative">
-            <button onclick="closeModal()" class="absolute -top-4 -right-4 bg-obsidian border border-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-800 transition">✕</button>
-            <div id="qr-code-large"></div>
-            <p class="text-obsidian font-mono text-sm mt-6 bg-gray-100 px-4 py-2 rounded-lg" id="qr-url-text">url</p>
+        <div id="modal-qr" class="bg-white p-8 rounded-[2rem] hidden flex-col items-center relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute -top-4 -right-4 bg-slate-900 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-slate-700 transition shadow-lg border-2 border-white font-bold">✕</button>
+            <div id="qr-code-large" class="p-2 bg-white rounded-2xl"></div>
+            <p class="text-slate-600 font-mono text-xs mt-6 bg-slate-100 px-4 py-2 rounded-lg break-all text-center max-w-[300px] border border-slate-200" id="qr-url-text">url</p>
         </div>
     </div>
 
-    <!-- Ẩn thẻ Input File dùng cho crop ảnh -->
+    <!-- Hidden Inputs for Files -->
     <input type="file" id="hidden-file-input" accept="image/*" class="hidden">
+    <input type="file" id="import-file" accept=".json" class="hidden" onchange="importConfig(event)">
 
     <!-- ========================================== -->
-    <!-- CORE JAVASCRIPT LOGIC -->
+    <!-- CORE JAVASCRIPT -->
     <!-- ========================================== -->
     <script>
-        // --- CONSTANTS & CONFIG ---
         const PRODUCTS_CONFIG = [
-            { id: 'p1', defaultColor: 'cyan', hex: '#06B6D4' },
-            { id: 'p2', defaultColor: 'violet', hex: '#8B5CF6' },
-            { id: 'p3', defaultColor: 'emerald', hex: '#10B981' },
-            { id: 'p4', defaultColor: 'amber', hex: '#F59E0B' }
+            { id: 'p1', defaultColor: 'cyan', hex: '#0ea5e9' },
+            { id: 'p2', defaultColor: 'violet', hex: '#8b5cf6' },
+            { id: 'p3', defaultColor: 'emerald', hex: '#10b981' },
+            { id: 'p4', defaultColor: 'amber', hex: '#f59e0b' }
         ];
 
-        // --- GLOBAL STATE ---
         let state = {
-            sessionId: 'S-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-            eventName: 'Tech Demo Day 2026',
-            category: 'Giải Thưởng Ứng Dụng Đột Phá',
+            sessionId: 'S-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
+            eventName: 'Thuyết Trình Sản Phẩm Toán Học',
+            category: 'Lớp 11B2 - Trường THPT Nguyễn Thái Bình',
             firebaseUrl: '',
             isSuspense: false,
             isClosed: false,
             votes: { p1: 0, p2: 0, p3: 0, p4: 0 },
             products: {
-                p1: { name: 'Vibe UI', author: 'Team Alpha', desc: 'Modern component library', avatar: '', link: 'https://github.com' },
-                p2: { name: 'StreamX', author: 'Team Beta', desc: 'Realtime data pipeline', avatar: '', link: 'https://github.com' },
-                p3: { name: 'GreenGrid', author: 'Team Gamma', desc: 'Energy management dashboard', avatar: '', link: 'https://github.com' },
-                p4: { name: 'Aura AI', author: 'Team Delta', desc: 'Creative assistant', avatar: '', link: 'https://github.com' }
+                p1: { name: 'Tổ 1', author: 'Nhóm 1', desc: 'Mô hình không gian', avatar: '', link: '' },
+                p2: { name: 'Tổ 2', author: 'Nhóm 2', desc: 'Ứng dụng thực tế', avatar: '', link: '' },
+                p3: { name: 'Tổ 3', author: 'Nhóm 3', desc: 'Thiết kế sáng tạo', avatar: '', link: '' },
+                p4: { name: 'Tổ 4', author: 'Nhóm 4', desc: 'Thuyết trình xuất sắc', avatar: '', link: '' }
             }
         };
 
-        let currentTargetProductId = null; // for image upload
+        let currentTargetProductId = null;
         let isMobileView = false;
-        
-        // --- SYNC ENGINE (BroadcastChannel + Firebase) ---
         const bc = new BroadcastChannel('tech_vote_channel');
         
         bc.onmessage = async (e) => {
             if (e.data.type === 'SYNC_STATE' && isMobileView) {
-                // Mobile tab gets state from presenter tab (Local Mode)
-                state = e.data.state;
-                renderMobile();
+                state = e.data.state; renderMobile();
             }
-            if (e.data.type === 'REQUEST_STATE' && !isMobileView) {
-                // Presenter tab sends state to new mobile tab
-                broadcastState();
-            }
-            if (e.data.type === 'VOTE_CAST' && !isMobileView) {
-                // Presenter receives vote from local tab
-                handleIncomingVote(e.data.productId);
-            }
+            if (e.data.type === 'REQUEST_STATE' && !isMobileView) broadcastState();
+            if (e.data.type === 'VOTE_CAST' && !isMobileView) handleIncomingVote(e.data.productId);
         };
 
-        function broadcastState() {
-            bc.postMessage({ type: 'SYNC_STATE', state: state });
-        }
+        function broadcastState() { bc.postMessage({ type: 'SYNC_STATE', state: state }); }
 
         async function syncToFirebase() {
             if (!state.firebaseUrl) return;
-            try {
-                await fetch(state.firebaseUrl, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(state)
-                });
-            } catch(e) { console.error("Firebase Sync Error", e); }
+            try { await fetch(state.firebaseUrl, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }); } 
+            catch(e) { console.error(e); }
         }
 
         async function fetchFromFirebase() {
@@ -279,95 +269,94 @@
             try {
                 const res = await fetch(state.firebaseUrl);
                 const data = await res.json();
-                if (data) {
-                    state = data;
-                    return true;
-                }
-            } catch(e) { console.error("Firebase Fetch Error", e); return false;}
-            return false;
+                if (data) { state = data; return true; }
+            } catch(e) { return false; } return false;
         }
 
-        // --- POLLING LOGIC ---
         setInterval(async () => {
             if (state.firebaseUrl) {
                 let oldVotes = JSON.stringify(state.votes);
                 let oldClosed = state.isClosed;
-                let success = await fetchFromFirebase();
-                if (success) {
-                    if (!isMobileView && (oldVotes !== JSON.stringify(state.votes) || oldClosed !== state.isClosed)) {
-                        renderPresenter();
-                    } else if (isMobileView) {
-                        renderMobile();
-                    }
+                if (await fetchFromFirebase()) {
+                    if (!isMobileView && (oldVotes !== JSON.stringify(state.votes) || oldClosed !== state.isClosed)) renderPresenter();
+                    else if (isMobileView) renderMobile();
                 }
             }
-        }, 2500);
+        }, 2000);
 
-
-        // --- INIT & ROUTING ---
         async function init() {
-            // Load local storage state for presenter
-            const localState = localStorage.getItem('techVoteState');
-            if (localState) {
-                const parsed = JSON.parse(localState);
-                state = { ...state, ...parsed }; // merge ensuring new keys exist
-            }
-
+            const localState = localStorage.getItem('techVoteState_v2'); // updated key to clear old cache
+            if (localState) { state = { ...state, ...JSON.parse(localState) }; }
             checkRoute();
             window.addEventListener('hashchange', checkRoute);
-            
-            // Global Hotkey for Podium
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'F9' || e.key === 'End') {
-                    if(!isMobileView) endVotingStage();
-                }
-            });
-
-            // Handle image upload logic
+            document.addEventListener('keydown', (e) => { if ((e.key === 'F9' || e.key === 'End') && !isMobileView) endVotingStage(); });
             document.getElementById('hidden-file-input').addEventListener('change', handleImageUpload);
         }
 
         async function checkRoute() {
             const hash = window.location.hash;
             if (hash.startsWith('#vote')) {
-                isMobileView = true;
-                document.title = "Bình Chọn | " + state.eventName;
+                isMobileView = true; document.title = "Bình Chọn | " + state.eventName;
                 document.getElementById('app-presenter').classList.remove('active-view');
                 document.getElementById('app-voter').classList.add('active-view');
-                document.body.style.background = '#07090E'; // Ensure dark bg
-
-                // Parse URL params securely
+                
                 const urlParams = new URLSearchParams(hash.replace('#vote', ''));
-                const sessionFromUrl = urlParams.get('s');
-                const dbFromUrl = urlParams.get('db');
+                if (urlParams.get('s')) state.sessionId = urlParams.get('s');
+                if (urlParams.get('db')) state.firebaseUrl = decodeURIComponent(urlParams.get('db'));
 
-                if (sessionFromUrl) state.sessionId = sessionFromUrl;
-                if (dbFromUrl) state.firebaseUrl = decodeURIComponent(dbFromUrl);
-
-                if (state.firebaseUrl) {
-                    await fetchFromFirebase();
-                } else {
-                    // Request state from local presenter tab via broadcast
-                    bc.postMessage({ type: 'REQUEST_STATE' });
-                }
+                if (state.firebaseUrl) await fetchFromFirebase(); else bc.postMessage({ type: 'REQUEST_STATE' });
                 renderMobile();
             } else {
                 isMobileView = false;
                 document.getElementById('app-voter').classList.remove('active-view');
                 document.getElementById('app-presenter').classList.add('active-view');
                 if (state.isClosed) document.getElementById('podium-view').classList.add('active-flex');
-                renderPresenter();
-                broadcastState(); // Init sync for any open mobile tabs
+                renderPresenter(); broadcastState();
             }
         }
 
         function saveLocalState() {
-            localStorage.setItem('techVoteState', JSON.stringify(state));
-            broadcastState();
-            syncToFirebase();
+            localStorage.setItem('techVoteState_v2', JSON.stringify(state));
+            broadcastState(); syncToFirebase();
         }
 
-        // --- PRESENTER VIEW LOGIC ---
+        // --- JSON EXPORT / IMPORT ---
+        function exportConfig() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "DuLieu_BinhChon_" + state.category.replace(/[^a-z0-9]/gi, '_') + ".json");
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+            
+            // Hiệu ứng Toast đơn giản
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 right-5 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-xl font-bold z-[200] transition-opacity";
+            toast.innerText = "✅ Đã tải file cấu hình thành công!";
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=>toast.remove(), 300); }, 3000);
+        }
+
+        function importConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    state = { ...state, ...importedState };
+                    saveLocalState();
+                    renderPresenter();
+                    alert("✅ Đã khôi phục dữ liệu thành công!");
+                } catch(err) {
+                    alert("❌ Lỗi: File không đúng định dạng.");
+                }
+                event.target.value = ''; // Reset input
+            };
+            reader.readAsText(file);
+        }
+
         function renderPresenter() {
             document.getElementById('p-eventName').value = state.eventName;
             document.getElementById('p-category').value = state.category;
@@ -375,12 +364,9 @@
             document.getElementById('toggle-suspense').checked = state.isSuspense;
 
             let total = Object.values(state.votes).reduce((a, b) => a + b, 0);
-            
-            // Counter animation
             animateValue(document.getElementById('p-total-votes'), parseInt(document.getElementById('p-total-votes').innerText)||0, total, 500);
 
-            const container = document.getElementById('p-products-container');
-            container.innerHTML = '';
+            const container = document.getElementById('p-products-container'); container.innerHTML = '';
 
             PRODUCTS_CONFIG.forEach(cfg => {
                 const p = state.products[cfg.id];
@@ -388,42 +374,32 @@
                 const percent = total > 0 ? Math.round((voteCount / total) * 100) : 0;
                 const displayVotes = state.isSuspense ? '??' : voteCount;
                 const displayPercent = state.isSuspense ? '?' : percent;
-
-                // Monogram generator
                 const monogram = p.name ? p.name.charAt(0).toUpperCase() : '?';
+                
                 const avatarHTML = p.avatar 
-                    ? `<img src="${p.avatar}" class="w-16 h-16 rounded-xl object-cover border border-white/20 shadow-lg">`
-                    : `<div class="w-16 h-16 rounded-xl border border-white/20 shadow-lg flex items-center justify-center text-2xl font-bold bg-gradient-to-br from-${cfg.defaultColor}-500/20 to-transparent text-brand-${cfg.defaultColor}">${monogram}</div>`;
+                    ? `<img src="${p.avatar}" class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md">`
+                    : `<div class="w-16 h-16 rounded-2xl border-2 border-white shadow-md flex items-center justify-center text-2xl font-black bg-${cfg.defaultColor}-100 text-brand-${cfg.defaultColor}">${monogram}</div>`;
 
                 const cardHTML = `
-                    <div class="glass-card p-5 relative overflow-hidden group transition-all duration-300 hover:border-brand-${cfg.defaultColor}/50">
-                        <!-- BG Glow -->
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-${cfg.defaultColor} rounded-full opacity-0 group-hover:opacity-10 blur-3xl transition-opacity"></div>
-                        
+                    <div class="glass-card p-5 relative overflow-hidden group transition-all duration-300 hover:border-brand-${cfg.defaultColor} hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+                        <div class="absolute -right-12 -top-12 w-32 h-32 bg-brand-${cfg.defaultColor} rounded-full opacity-0 group-hover:opacity-10 blur-2xl transition-opacity"></div>
                         <div class="flex items-start gap-4 mb-4 relative z-10">
-                            <div class="relative cursor-pointer group/ava" onclick="triggerAvatarUpload('${cfg.id}')">
+                            <div class="relative cursor-pointer group/ava shrink-0" onclick="triggerAvatarUpload('${cfg.id}')">
                                 ${avatarHTML}
-                                <div class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center opacity-0 group-hover/ava:opacity-100 transition-opacity text-xs font-medium">Đổi ảnh</div>
+                                <div class="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center opacity-0 group-hover/ava:opacity-100 transition-opacity text-xs font-bold text-white backdrop-blur-[2px]">Đổi ảnh</div>
                             </div>
-                            <div class="flex-1">
-                                <input type="text" class="input-ghost text-lg font-bold text-white mb-1" value="${p.name}" placeholder="Tên sản phẩm..." onchange="updateProduct('${cfg.id}', 'name', this.value)">
-                                <input type="text" class="input-ghost text-sm text-brand-${cfg.defaultColor} font-medium mb-1" value="${p.author}" placeholder="Nhóm / Tác giả..." onchange="updateProduct('${cfg.id}', 'author', this.value)">
+                            <div class="flex-1 min-w-0">
+                                <input type="text" class="input-ghost text-xl font-extrabold text-slate-900 mb-0.5 truncate" value="${p.name}" placeholder="Tên sản phẩm..." onchange="updateProduct('${cfg.id}', 'name', this.value)">
+                                <input type="text" class="input-ghost text-sm text-brand-${cfg.defaultColor} font-bold mb-1 truncate" value="${p.author}" placeholder="Nhóm / Tác giả..." onchange="updateProduct('${cfg.id}', 'author', this.value)">
                             </div>
                         </div>
+                        <input type="text" class="input-ghost text-sm text-slate-600 mb-4 bg-white/50 p-2 rounded-lg border border-transparent focus:border-slate-200" value="${p.desc}" placeholder="Mô tả ngắn gọn..." onchange="updateProduct('${cfg.id}', 'desc', this.value)">
                         
-                        <input type="text" class="input-ghost text-sm text-gray-400 mb-4" value="${p.desc}" placeholder="Mô tả ngắn gọn..." onchange="updateProduct('${cfg.id}', 'desc', this.value)">
-                        
-                        <div class="flex items-center gap-2 mb-4">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                            <input type="text" class="input-ghost text-xs text-gray-400 font-mono" value="${p.link}" placeholder="https://..." onchange="updateProduct('${cfg.id}', 'link', this.value)">
-                            ${p.link ? `<a href="${p.link}" target="_blank" class="p-1 rounded hover:bg-white/10 text-brand-${cfg.defaultColor}" title="Mở thử App"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : ''}
-                        </div>
-
-                        <div class="flex items-end justify-between border-t border-white/5 pt-3 mt-auto">
-                            <div class="text-3xl font-mono font-bold text-white">${displayVotes} <span class="text-sm font-sans text-gray-500 font-normal">phiếu</span></div>
-                            <div class="text-right">
-                                <div class="text-sm font-bold text-brand-${cfg.defaultColor}">${displayPercent}%</div>
-                                <div class="w-24 h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
+                        <div class="flex items-center justify-between border-t border-slate-200/60 pt-4 mt-auto">
+                            <div class="text-4xl font-mono font-black text-slate-800">${displayVotes} <span class="text-sm font-sans text-slate-500 font-semibold">phiếu</span></div>
+                            <div class="text-right w-1/2">
+                                <div class="text-sm font-black text-brand-${cfg.defaultColor} mb-1.5">${displayPercent}%</div>
+                                <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                                     <div class="h-full bg-brand-${cfg.defaultColor} rounded-full transition-all duration-1000" style="width: ${percent}%"></div>
                                 </div>
                             </div>
@@ -432,508 +408,244 @@
                 `;
                 container.innerHTML += cardHTML;
             });
-
             generateQR();
         }
 
-        function updateState(key, value) {
-            state[key] = value;
-            saveLocalState();
-        }
+        function updateState(key, value) { state[key] = value; saveLocalState(); }
+        function updateProduct(id, key, value) { state.products[id][key] = value; saveLocalState(); }
+        function toggleSuspense(val) { state.isSuspense = val; saveLocalState(); renderPresenter(); }
 
-        function updateProduct(id, key, value) {
-            state.products[id][key] = value;
-            saveLocalState();
-        }
-
-        function toggleSuspense(val) {
-            state.isSuspense = val;
-            saveLocalState();
-            renderPresenter();
-        }
-
-        // --- AVATAR UPLOAD & CANVAS COMPRESSION ---
-        function triggerAvatarUpload(id) {
-            currentTargetProductId = id;
-            document.getElementById('hidden-file-input').click();
-        }
-
+        function triggerAvatarUpload(id) { currentTargetProductId = id; document.getElementById('hidden-file-input').click(); }
         function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+            const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = 200;
-                    canvas.width = size; canvas.height = size;
-                    
-                    // Cover crop
+                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+                    const size = 300; canvas.width = size; canvas.height = size;
                     const scale = Math.max(size / img.width, size / img.height);
-                    const x = (size - img.width * scale) / 2;
-                    const y = (size - img.height * scale) / 2;
-                    
+                    const x = (size - img.width * scale) / 2; const y = (size - img.height * scale) / 2;
                     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    
-                    updateProduct(currentTargetProductId, 'avatar', dataUrl);
+                    updateProduct(currentTargetProductId, 'avatar', canvas.toDataURL('image/jpeg', 0.8));
                     renderPresenter();
                 };
                 img.src = event.target.result;
             };
-            reader.readAsDataURL(file);
-            e.target.value = ''; // reset
+            reader.readAsDataURL(file); e.target.value = ''; 
         }
 
-        // --- QR & SESSION CONTROLS ---
         function getVoteUrl() {
             let url = window.location.origin + window.location.pathname + `#vote&s=${state.sessionId}`;
-            if (state.firebaseUrl) {
-                url += `&db=${encodeURIComponent(state.firebaseUrl)}`;
-            }
+            if (state.firebaseUrl) url += `&db=${encodeURIComponent(state.firebaseUrl)}`;
             return url;
         }
 
-        let qrCodeInstance = null;
-        let qrCodeLargeInstance = null;
-        
         function generateQR() {
-            const url = getVoteUrl();
-            document.getElementById('qr-url-text').innerText = url;
-            
-            const qrContainer = document.getElementById('qr-code');
-            qrContainer.innerHTML = '';
-            qrCodeInstance = new QRCode(qrContainer, {
-                text: url, width: 160, height: 160,
-                colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
-            });
+            const url = getVoteUrl(); document.getElementById('qr-url-text').innerText = url;
+            const qrContainer = document.getElementById('qr-code'); qrContainer.innerHTML = '';
+            new QRCode(qrContainer, { text: url, width: 150, height: 150, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
         }
 
         function zoomQR() {
             document.getElementById('modal-overlay').classList.add('active-flex');
             document.getElementById('modal-qr').classList.add('active-flex');
             document.getElementById('modal-settings').classList.remove('active-flex');
-            
-            const url = getVoteUrl();
-            const qrLarge = document.getElementById('qr-code-large');
-            qrLarge.innerHTML = '';
-            qrCodeLargeInstance = new QRCode(qrLarge, {
-                text: url, width: 300, height: 300,
-                colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
-            });
+            const qrLarge = document.getElementById('qr-code-large'); qrLarge.innerHTML = '';
+            new QRCode(qrLarge, { text: getVoteUrl(), width: 280, height: 280, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
         }
 
         function createNewSession() {
-            if(confirm("Tạo phiên mới sẽ đặt lại toàn bộ số phiếu về 0. Bạn có chắc chắn?")) {
-                state.sessionId = 'S-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-                state.votes = { p1: 0, p2: 0, p3: 0, p4: 0 };
-                state.isClosed = false;
-                state.isSuspense = false;
-                saveLocalState();
-                renderPresenter();
-                
-                // Hide podium if open
-                document.getElementById('podium-view').classList.remove('active-flex');
-                document.getElementById('app-presenter').style.display = 'block';
+            if(confirm("Tạo phiên mới sẽ xóa toàn bộ số phiếu hiện tại về 0. Bạn có chắc chắn? (Nên tải file cấu hình trước khi reset)")) {
+                state.sessionId = 'S-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+                state.votes = { p1: 0, p2: 0, p3: 0, p4: 0 }; state.isClosed = false; state.isSuspense = false;
+                saveLocalState(); renderPresenter();
+                document.getElementById('podium-view').classList.remove('active-flex'); document.getElementById('app-presenter').style.display = 'block';
             }
         }
-
-        function copyVoteLink() {
-            navigator.clipboard.writeText(getVoteUrl()).then(() => alert("Đã copy link bình chọn!"));
-        }
-
+        function copyVoteLink() { navigator.clipboard.writeText(getVoteUrl()).then(() => alert("Đã copy link bình chọn!")); }
         function generateRandomVote() {
             if(state.isClosed) return alert("Cổng bình chọn đã đóng!");
             const ids = ['p1', 'p2', 'p3', 'p4'];
-            const rId = ids[Math.floor(Math.random() * ids.length)];
-            handleIncomingVote(rId);
+            handleIncomingVote(ids[Math.floor(Math.random() * ids.length)]);
         }
-
         function handleIncomingVote(productId) {
             if(state.isClosed) return;
-            state.votes[productId]++;
-            saveLocalState();
-            renderPresenter();
+            state.votes[productId]++; saveLocalState(); renderPresenter();
         }
 
-        // --- SETTINGS MODAL ---
         function openSyncModal() {
-            document.getElementById('modal-overlay').classList.add('active-flex');
-            document.getElementById('modal-settings').classList.add('active-flex');
-            document.getElementById('modal-qr').classList.remove('active-flex');
-            document.getElementById('m-firebase-url').value = state.firebaseUrl;
+            document.getElementById('modal-overlay').classList.add('active-flex'); document.getElementById('modal-settings').classList.add('active-flex');
+            document.getElementById('modal-qr').classList.remove('active-flex'); document.getElementById('m-firebase-url').value = state.firebaseUrl;
         }
-
-        function closeModal() {
-            document.getElementById('modal-overlay').classList.remove('active-flex');
-            document.getElementById('modal-settings').classList.remove('active-flex');
-            document.getElementById('modal-qr').classList.remove('active-flex');
-        }
-
+        function closeModal() { document.getElementById('modal-overlay').classList.remove('active-flex'); document.getElementById('modal-settings').classList.remove('active-flex'); document.getElementById('modal-qr').classList.remove('active-flex'); }
         function saveSettings() {
             state.firebaseUrl = document.getElementById('m-firebase-url').value.trim();
-            saveLocalState();
-            closeModal();
-            renderPresenter();
-            alert("Đã lưu cấu hình. Mã QR đã được cập nhật.");
+            saveLocalState(); closeModal(); renderPresenter(); alert("Đã lưu Link Database.");
         }
 
-        // --- MOBILE VOTER LOGIC ---
-        function getVoterStorageKey() {
-            return `voted_${state.sessionId}`;
-        }
-
+        // --- MOBILE ---
         function renderMobile() {
             document.getElementById('v-eventName').innerText = state.eventName;
             document.getElementById('v-category').innerText = state.category;
             document.getElementById('v-session-id').innerText = `Session: #${state.sessionId}`;
 
-            const votedId = localStorage.getItem(getVoterStorageKey());
-            const alertBox = document.getElementById('v-alert-box');
-            const container = document.getElementById('v-products-container');
-            container.innerHTML = '';
-
+            const votedId = localStorage.getItem(`voted_${state.sessionId}`);
+            const alertBox = document.getElementById('v-alert-box'); const container = document.getElementById('v-products-container'); container.innerHTML = '';
             let isLocked = false;
 
             if (state.isClosed) {
-                isLocked = true;
-                alertBox.className = "mb-6 p-4 rounded-xl border backdrop-blur-md text-center shadow-lg bg-red-500/10 border-red-500/30 text-red-200 active-view";
-                alertBox.innerHTML = `
-                    <svg class="w-8 h-8 mx-auto mb-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    <h3 class="font-bold text-lg">Cổng bình chọn đã đóng</h3>
-                    <p class="text-sm mt-1">Kết quả chung cuộc đang được công bố trên màn hình chính.</p>
-                `;
+                isLocked = true; alertBox.className = "mb-6 p-5 rounded-2xl border text-center shadow-lg bg-red-50 border-red-200 text-red-600 active-view";
+                alertBox.innerHTML = `<h3 class="font-black text-xl mb-1">CỔNG ĐÃ ĐÓNG</h3><p class="text-sm font-semibold">Kết quả đang hiển thị trên bảng chiếu.</p>`;
             } else if (votedId) {
-                isLocked = true;
-                const p = state.products[votedId];
-                const cfg = PRODUCTS_CONFIG.find(c => c.id === votedId);
-                alertBox.className = `mb-6 p-6 rounded-2xl border backdrop-blur-xl text-center shadow-2xl bg-brand-${cfg.defaultColor}/10 border-brand-${cfg.defaultColor}/30 text-white active-view relative overflow-hidden`;
-                
-                // Pass visual
+                isLocked = true; const p = state.products[votedId]; const cfg = PRODUCTS_CONFIG.find(c => c.id === votedId);
+                alertBox.className = `mb-6 p-6 rounded-2xl border text-center shadow-xl bg-${cfg.defaultColor}-50 border-${cfg.defaultColor}-200 text-slate-800 active-view relative overflow-hidden`;
                 alertBox.innerHTML = `
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-${cfg.defaultColor} rounded-full opacity-20 blur-3xl"></div>
-                    <div class="text-brand-${cfg.defaultColor} text-xs font-mono mb-2 uppercase tracking-widest">Digital Vote Pass</div>
-                    <svg class="w-12 h-12 mx-auto mb-3 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <h3 class="font-bold text-xl mb-1">Ghi nhận thành công</h3>
-                    <p class="text-sm text-gray-300">Bạn đã bỏ phiếu cho</p>
-                    <div class="text-2xl font-bold mt-2 text-brand-${cfg.defaultColor}">${p.name}</div>
+                    <div class="text-brand-${cfg.defaultColor} text-xs font-mono mb-2 uppercase tracking-widest font-bold">Lượt bình chọn hợp lệ</div>
+                    <svg class="w-12 h-12 mx-auto mb-2 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-sm text-slate-500 font-medium">Bạn đã bầu cho</p>
+                    <div class="text-2xl font-black mt-1 text-brand-${cfg.defaultColor}">${p.name}</div>
                 `;
-            } else {
-                alertBox.classList.remove('active-view');
-            }
+            } else { alertBox.classList.remove('active-view'); }
 
             PRODUCTS_CONFIG.forEach(cfg => {
                 const p = state.products[cfg.id];
-                const monogram = p.name ? p.name.charAt(0).toUpperCase() : '?';
                 const avatarHTML = p.avatar 
-                    ? `<img src="${p.avatar}" class="w-12 h-12 rounded-lg object-cover">`
-                    : `<div class="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-xl bg-${cfg.defaultColor}-500/20 text-brand-${cfg.defaultColor}">${monogram}</div>`;
+                    ? `<img src="${p.avatar}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-sm">`
+                    : `<div class="w-14 h-14 rounded-xl flex items-center justify-center font-black text-xl bg-${cfg.defaultColor}-100 text-brand-${cfg.defaultColor} border border-${cfg.defaultColor}-200">${p.name.charAt(0).toUpperCase()}</div>`;
 
-                // If locked, show results instead of buttons (if closed) or just disabled state
                 let rightContent = '';
-                let opacity = isLocked && votedId !== cfg.id ? 'opacity-50 grayscale' : 'opacity-100';
-                let border = isLocked && votedId === cfg.id ? `border-brand-${cfg.defaultColor} shadow-[0_0_15px_rgba(var(--brand-${cfg.defaultColor}),0.3)]` : 'border-white/10';
+                let opacity = isLocked && votedId !== cfg.id ? 'opacity-40 grayscale' : 'opacity-100';
+                let border = isLocked && votedId === cfg.id ? `border-brand-${cfg.defaultColor} ring-4 ring-${cfg.defaultColor}-100` : 'border-slate-200';
 
                 if (state.isClosed) {
                     let total = Object.values(state.votes).reduce((a, b) => a + b, 0);
                     let percent = total > 0 ? Math.round((state.votes[cfg.id] / total) * 100) : 0;
-                    rightContent = `<div class="text-right"><div class="font-bold font-mono text-lg text-brand-${cfg.defaultColor}">${percent}%</div><div class="text-xs text-gray-500">${state.votes[cfg.id]} phiếu</div></div>`;
+                    rightContent = `<div class="text-right"><div class="font-black font-mono text-xl text-brand-${cfg.defaultColor}">${percent}%</div><div class="text-xs font-bold text-slate-400">${state.votes[cfg.id]} phiếu</div></div>`;
                 } else if (!isLocked) {
-                    rightContent = `<button onclick="submitVote('${cfg.id}')" class="bg-brand-${cfg.defaultColor} text-obsidian px-4 py-2 rounded-lg font-bold text-sm hover:brightness-110 active:scale-95 transition">Chọn</button>`;
+                    rightContent = `<button onclick="submitVote('${cfg.id}')" class="bg-brand-${cfg.defaultColor} text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-${cfg.defaultColor}-500/30 active:scale-95 transition">Chọn</button>`;
                 } else if (votedId === cfg.id) {
-                    rightContent = `<svg class="w-8 h-8 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                    rightContent = `<svg class="w-8 h-8 text-brand-${cfg.defaultColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
                 }
 
-                const cardHTML = `
-                    <div class="glass-card p-4 flex items-center gap-4 ${opacity} ${border} transition-all">
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl flex items-center gap-4 ${opacity} ${border} border shadow-sm transition-all">
                         ${avatarHTML}
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-white truncate">${p.name}</h4>
-                            <p class="text-xs text-brand-${cfg.defaultColor} truncate">${p.author}</p>
+                            <h4 class="font-extrabold text-slate-800 truncate text-lg">${p.name}</h4>
+                            <p class="text-xs font-bold text-brand-${cfg.defaultColor} truncate">${p.author}</p>
                         </div>
                         ${rightContent}
-                    </div>
-                `;
-                container.innerHTML += cardHTML;
+                    </div>`;
             });
         }
 
-        function submitVote(productId) {
-            if(confirm(`Xác nhận bình chọn cho "${state.products[productId].name}"? (Chỉ được chọn 1 lần)`)) {
-                // Save locally
-                localStorage.setItem(getVoterStorageKey(), productId);
-                
-                // Sync Up
+        function submitVote(id) {
+            if(confirm(`Chốt phiếu cho "${state.products[id].name}"? (Mỗi học sinh chỉ chọn 1 lần)`)) {
+                localStorage.setItem(`voted_${state.sessionId}`, id);
                 if (state.firebaseUrl) {
-                    // Quick optimistic local update to trigger re-render
-                    state.votes[productId]++;
-                    renderMobile();
-                    // Sync to FB
-                    fetchFromFirebase().then(() => {
-                        state.votes[productId]++;
-                        syncToFirebase();
-                    });
-                } else {
-                    // Send to presenter via BroadcastChannel
-                    bc.postMessage({ type: 'VOTE_CAST', productId: productId });
-                    renderMobile();
-                }
+                    state.votes[id]++; renderMobile(); fetchFromFirebase().then(() => { state.votes[id]++; syncToFirebase(); });
+                } else { bc.postMessage({ type: 'VOTE_CAST', productId: id }); renderMobile(); }
             }
         }
 
-
-        // --- PODIUM & FIREWORKS LOGIC (PRESENTER) ---
+        // --- PODIUM ---
         function endVotingStage() {
-            if(confirm("Xác nhận đóng cổng bình chọn và hiển thị kết quả vinh danh?")) {
-                state.isClosed = true;
-                state.isSuspense = false;
-                saveLocalState();
-                
-                document.getElementById('app-presenter').style.display = 'none';
-                document.getElementById('podium-view').classList.add('active-flex');
-                
-                renderPodium();
-                fireworks.start();
-                playFanfare();
+            if(confirm("Chốt điểm số và mở Sân khấu Vinh danh?")) {
+                state.isClosed = true; state.isSuspense = false; saveLocalState();
+                document.getElementById('app-presenter').style.display = 'none'; document.getElementById('podium-view').classList.add('active-flex');
+                renderPodium(); fireworks.start(); playFanfare();
             }
         }
-
-        function closePodium() {
-            document.getElementById('podium-view').classList.remove('active-flex');
-            document.getElementById('app-presenter').style.display = 'block';
-            fireworks.stop();
-        }
+        function closePodium() { document.getElementById('podium-view').classList.remove('active-flex'); document.getElementById('app-presenter').style.display = 'block'; fireworks.stop(); }
 
         function renderPodium() {
             document.getElementById('podium-event-name').innerText = state.eventName;
             document.getElementById('podium-category').innerText = state.category;
 
-            // Sort logic
-            let sorted = PRODUCTS_CONFIG.map(cfg => {
-                return {
-                    id: cfg.id, cfg: cfg, p: state.products[cfg.id], votes: state.votes[cfg.id]
-                }
-            }).sort((a, b) => b.votes - a.votes);
-
+            let sorted = PRODUCTS_CONFIG.map(cfg => ({ id: cfg.id, cfg: cfg, p: state.products[cfg.id], votes: state.votes[cfg.id] })).sort((a, b) => b.votes - a.votes);
             let total = sorted.reduce((sum, item) => sum + item.votes, 0);
+            const order = [ { rank: 2, item: sorted[1], h: '280px' }, { rank: 1, item: sorted[0], h: '380px' }, { rank: 3, item: sorted[2], h: '200px' }, { rank: 4, item: sorted[3], h: '120px' } ];
+            const container = document.getElementById('podium-container'); container.innerHTML = '';
 
-            // Ranks: 1st (Center), 2nd (Left), 3rd (Right), 4th (Far Right)
-            // Visually in flex row: [2nd] [1st] [3rd] [4th]
-            const visualOrder = [
-                { rank: 2, item: sorted[1], height: '260px' },
-                { rank: 1, item: sorted[0], height: '350px' },
-                { rank: 3, item: sorted[2], height: '190px' },
-                { rank: 4, item: sorted[3], height: '120px' }
-            ];
+            order.forEach(vo => {
+                if(!vo.item) return; const percent = total > 0 ? Math.round((vo.item.votes / total) * 100) : 0;
+                const crown = vo.rank === 1 ? `<div class="absolute -top-12 left-1/2 transform -translate-x-1/2 text-5xl animate-float filter drop-shadow-lg z-20">👑</div>` : '';
+                const ava = vo.item.p.avatar 
+                    ? `<img src="${vo.item.p.avatar}" class="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white shadow-xl z-10 relative bg-white">`
+                    : `<div class="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center font-black text-3xl bg-white border-4 border-brand-${vo.item.cfg.defaultColor} text-brand-${vo.item.cfg.defaultColor} shadow-xl z-10 relative">${vo.item.p.name.charAt(0).toUpperCase()}</div>`;
 
-            const container = document.getElementById('podium-container');
-            container.innerHTML = '';
-
-            visualOrder.forEach(vo => {
-                if(!vo.item) return;
-                const percent = total > 0 ? Math.round((vo.item.votes / total) * 100) : 0;
-                const p = vo.item.p;
-                const cfg = vo.item.cfg;
-                const monogram = p.name ? p.name.charAt(0).toUpperCase() : '?';
-                
-                const crown = vo.rank === 1 ? `<div class="absolute -top-10 left-1/2 transform -translate-x-1/2 text-4xl animate-float filter drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]">👑</div>` : '';
-                const avaHTML = p.avatar 
-                    ? `<img src="${p.avatar}" class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-obsidian mb-2 z-10 relative">`
-                    : `<div class="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-bold text-2xl bg-obsidian border-4 border-brand-${cfg.defaultColor} text-brand-${cfg.defaultColor} mb-2 z-10 relative">${monogram}</div>`;
-
-                const linkBtn = p.link ? `<a href="${p.link}" target="_blank" class="mt-4 px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-xs font-medium text-white backdrop-blur flex items-center gap-1 transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> Mở App</a>` : '';
-
-                const html = `
-                    <div class="flex flex-col items-center justify-end w-1/4 max-w-[200px] relative group">
-                        ${crown}
-                        ${avaHTML}
-                        <div class="text-center mb-4 z-10 absolute bottom-full pb-20 md:pb-24 w-full whitespace-nowrap drop-shadow-md">
-                            <h3 class="font-bold text-sm md:text-xl text-white truncate px-2">${p.name}</h3>
-                            <p class="text-xs text-brand-${cfg.defaultColor}">${p.author}</p>
-                            <div class="font-mono font-bold text-lg md:text-2xl mt-1 text-white">${vo.item.votes} <span class="text-xs font-sans font-normal text-gray-300">phiếu</span></div>
+                container.innerHTML += `
+                    <div class="flex flex-col items-center justify-end w-1/4 max-w-[220px] relative group">
+                        ${crown} ${ava}
+                        <div class="text-center mb-6 z-10 absolute bottom-full pb-24 md:pb-32 w-full whitespace-nowrap drop-shadow-md">
+                            <h3 class="font-extrabold text-lg md:text-2xl text-slate-800 truncate px-2 bg-white/80 rounded-full inline-block backdrop-blur-sm border border-white shadow-sm">${vo.item.p.name}</h3>
+                            <div class="font-mono font-black text-xl md:text-3xl mt-2 text-brand-${vo.item.cfg.defaultColor}">${vo.item.votes} <span class="text-sm font-sans font-bold text-slate-500">phiếu</span></div>
                         </div>
-                        
-                        <div class="podium-bar w-full rounded-t-2xl flex flex-col items-center justify-start pt-6 border-t border-l border-r border-white/20 bg-gradient-to-t from-brand-${cfg.defaultColor}/10 to-brand-${cfg.defaultColor}/40 backdrop-blur-md relative overflow-hidden" style="height: 0px;" data-target-height="${vo.height}">
-                            <div class="absolute inset-0 bg-brand-${cfg.defaultColor} opacity-10 mix-blend-overlay"></div>
-                            <div class="text-3xl md:text-5xl font-black text-white/50 z-10">#${vo.rank}</div>
-                            <div class="text-xs md:text-sm font-bold text-brand-${cfg.defaultColor} z-10 mt-1">${percent}%</div>
-                            ${linkBtn}
+                        <div class="podium-bar w-full rounded-t-3xl flex flex-col items-center justify-start pt-6 border-t-2 border-l-2 border-r-2 border-white bg-gradient-to-t from-${vo.item.cfg.defaultColor}-100 to-${vo.item.cfg.defaultColor}-300/50 backdrop-blur-md relative overflow-hidden shadow-2xl" style="height: 0px;" data-target-height="${vo.h}">
+                            <div class="text-4xl md:text-6xl font-black text-white drop-shadow-md z-10">#${vo.rank}</div>
+                            <div class="text-sm md:text-lg font-bold text-brand-${vo.item.cfg.defaultColor} z-10 mt-1 bg-white/80 px-3 py-1 rounded-full">${percent}%</div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    </div>`;
             });
-
-            // Trigger animation
-            setTimeout(() => {
-                document.querySelectorAll('.podium-bar').forEach(bar => {
-                    bar.style.height = bar.getAttribute('data-target-height');
-                });
-            }, 100);
+            setTimeout(() => { document.querySelectorAll('.podium-bar').forEach(b => b.style.height = b.getAttribute('data-target-height')); }, 100);
         }
 
-        // --- WEB AUDIO API (Fanfare) ---
+        // --- AUDIO & FX ---
         function playFanfare() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Synth Notes
-                function playTone(freq, type, startTime, duration, vol) {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = type;
-                    osc.frequency.value = freq;
-                    
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    
-                    osc.start(startTime);
-                    gain.gain.setValueAtTime(0, startTime);
-                    gain.gain.linearRampToValueAtTime(vol, startTime + 0.1);
-                    gain.gain.setValueAtTime(vol, startTime + duration - 0.2);
-                    gain.gain.linearRampToValueAtTime(0, startTime + duration);
-                    osc.stop(startTime + duration);
+                function playTone(freq, type, startTime, dur, vol) {
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                    osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(startTime); gain.gain.setValueAtTime(0, startTime); gain.gain.linearRampToValueAtTime(vol, startTime + 0.1);
+                    gain.gain.setValueAtTime(vol, startTime + dur - 0.2); gain.gain.linearRampToValueAtTime(0, startTime + dur); osc.stop(startTime + dur);
                 }
-
-                const now = ctx.currentTime;
-                // Triumphant sequence (C4, E4, G4, C5)
-                playTone(261.63, 'square', now, 0.4, 0.1);      // C4
-                playTone(329.63, 'square', now + 0.4, 0.4, 0.1); // E4
-                playTone(392.00, 'square', now + 0.8, 0.4, 0.1); // G4
-                playTone(523.25, 'square', now + 1.2, 1.5, 0.15); // C5 (held)
-                
-                // Synthesize Applause (Filtered White Noise)
-                const bufferSize = ctx.sampleRate * 4; // 4 seconds
-                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-                const noise = ctx.createBufferSource();
-                noise.buffer = buffer;
-                
-                const filter = ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.value = 1000;
-                
-                const noiseGain = ctx.createGain();
-                noiseGain.gain.setValueAtTime(0, now);
-                noiseGain.gain.linearRampToValueAtTime(0.1, now + 1); // fade in
-                noiseGain.gain.linearRampToValueAtTime(0, now + 4);   // fade out
-                
-                noise.connect(filter);
-                filter.connect(noiseGain);
-                noiseGain.connect(ctx.destination);
-                noise.start(now);
-
-            } catch (e) { console.log("Web Audio API not supported or blocked.", e); }
+                const n = ctx.currentTime;
+                playTone(261.63, 'triangle', n, 0.3, 0.2); playTone(329.63, 'triangle', n+0.3, 0.3, 0.2);
+                playTone(392.00, 'triangle', n+0.6, 0.3, 0.2); playTone(523.25, 'triangle', n+0.9, 1.5, 0.3);
+            } catch(e){}
         }
 
-        // --- CANVAS FIREWORKS 60FPS ---
         const fireworks = {
-            canvas: document.getElementById('canvas-fireworks'),
-            ctx: null,
-            particles: [],
-            animationId: null,
-            active: false,
-            colors: ['#06B6D4', '#8B5CF6', '#10B981', '#F59E0B', '#FFFFFF'],
-            
-            init() {
-                this.ctx = this.canvas.getContext('2d');
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-            },
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            },
-            createExplosion(x, y) {
-                const count = 50 + Math.random() * 50;
-                for (let i = 0; i < count; i++) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = Math.random() * 6 + 2;
-                    this.particles.push({
-                        x: x, y: y,
-                        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-                        radius: Math.random() * 3 + 1,
-                        color: this.colors[Math.floor(Math.random() * this.colors.length)],
-                        alpha: 1,
-                        decay: Math.random() * 0.015 + 0.015,
-                        gravity: 0.1
-                    });
+            c: document.getElementById('canvas-fireworks'), ctx: null, p: [], aId: null, active: false,
+            colors: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899'],
+            init() { this.ctx = this.c.getContext('2d'); this.resize(); window.addEventListener('resize', ()=>this.resize()); },
+            resize() { this.c.width = window.innerWidth; this.c.height = window.innerHeight; },
+            exp(x, y) {
+                for(let i=0; i<80; i++) {
+                    const a = Math.random()*Math.PI*2, s = Math.random()*8+2;
+                    this.p.push({ x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, r:Math.random()*4+1, c:this.colors[Math.floor(Math.random()*this.colors.length)], a:1, d:Math.random()*0.015+0.01, g:0.15 });
                 }
             },
             update() {
                 if(!this.active) return;
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                // Randomly spawn fireworks
-                if (Math.random() < 0.05) {
-                    this.createExplosion(Math.random() * this.canvas.width, Math.random() * (this.canvas.height / 2));
+                this.ctx.clearRect(0,0,this.c.width,this.c.height);
+                if(Math.random()<0.08) this.exp(Math.random()*this.c.width, Math.random()*(this.c.height/2));
+                for(let i=this.p.length-1; i>=0; i--) {
+                    let p=this.p[i]; p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.a-=p.d;
+                    if(p.a<=0) { this.p.splice(i,1); continue; }
+                    this.ctx.globalAlpha=p.a; this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.r,0,Math.PI*2); this.ctx.fillStyle=p.c; this.ctx.fill();
                 }
-
-                for (let i = this.particles.length - 1; i >= 0; i--) {
-                    let p = this.particles[i];
-                    p.vy += p.gravity;
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.alpha -= p.decay;
-                    
-                    if (p.alpha <= 0) {
-                        this.particles.splice(i, 1);
-                        continue;
-                    }
-                    
-                    this.ctx.globalAlpha = p.alpha;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                    this.ctx.fillStyle = p.color;
-                    this.ctx.fill();
-                }
-                this.ctx.globalAlpha = 1;
-                this.animationId = requestAnimationFrame(() => this.update());
+                this.ctx.globalAlpha=1; this.aId=requestAnimationFrame(()=>this.update());
             },
             start() {
-                if(!this.ctx) this.init();
-                this.active = true;
-                this.canvas.classList.add('active-view');
-                
-                // Initial massive explosion center
-                this.createExplosion(this.canvas.width / 2, this.canvas.height / 3);
-                this.createExplosion(this.canvas.width / 3, this.canvas.height / 2);
-                this.createExplosion(this.canvas.width * 2/3, this.canvas.height / 2);
-                
-                this.update();
-                
-                // Stop auto-spawning after 5 seconds to not kill CPU
-                setTimeout(() => { this.active = false; }, 5000);
-                // Wait for particles to fade then hide canvas
-                setTimeout(() => { this.canvas.classList.remove('active-view'); }, 8000);
+                if(!this.ctx) this.init(); this.active=true; this.c.classList.add('active-view');
+                this.exp(this.c.width/2, this.c.height/3); this.exp(this.c.width/4, this.c.height/2); this.exp(this.c.width*3/4, this.c.height/2);
+                this.update(); setTimeout(()=>this.active=false, 6000); setTimeout(()=>this.c.classList.remove('active-view'), 9000);
             },
-            stop() {
-                this.active = false;
-                this.particles = [];
-                this.canvas.classList.remove('active-view');
-                cancelAnimationFrame(this.animationId);
-            }
+            stop() { this.active=false; this.p=[]; this.c.classList.remove('active-view'); cancelAnimationFrame(this.aId); }
         };
 
-        // --- UTILS ---
-        function animateValue(obj, start, end, duration) {
-            if (start === end) { obj.innerHTML = end; return; }
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) window.requestAnimationFrame(step);
-            };
-            window.requestAnimationFrame(step);
+        function animateValue(obj, start, end, dur) {
+            if(start===end) { obj.innerHTML = end; return; }
+            let s = null;
+            const step = (t) => {
+                if(!s) s = t; const prog = Math.min((t-s)/dur, 1);
+                obj.innerHTML = Math.floor(prog*(end-start)+start);
+                if(prog<1) window.requestAnimationFrame(step);
+            }; window.requestAnimationFrame(step);
         }
-
-        // Start app
         window.onload = init;
     </script>
 </body>
